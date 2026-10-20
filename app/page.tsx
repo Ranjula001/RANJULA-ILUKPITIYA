@@ -1,6 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 import { useEffect, useState } from "react";
 
 /* ── data ────────────────────────────────────────────── */
@@ -56,7 +59,7 @@ const cases: {
     image: "/assets/AbaCeylon.png",
     fit: "contain",
   },
-    {
+  {
     name: "GAWANNA.LK",
     subtitle: "PRODUCT DESIGN",
     image: "/assets/Gawanna.png",
@@ -115,6 +118,20 @@ export default function Home() {
     const aboutEl = document.getElementById("about") as HTMLElement | null;
     const casesEl = document.getElementById("cases") as HTMLElement | null;
 
+    gsap.registerPlugin(ScrollTrigger, SplitText);
+    const split = SplitText.create(".text", { type: "words" });
+
+    gsap.to(split.words, {
+      color: "#fff",
+      stagger: 0.1,
+      scrollTrigger: {
+        trigger: ".text",
+        start: "top center",
+        end: "bottom center",
+        scrub: true,
+      },
+    });
+
     let lastScrollY = window.scrollY;
     let rotation = 0;
 
@@ -133,7 +150,10 @@ export default function Home() {
         if (!el) return;
         const rect = el.getBoundingClientRect();
         const winH = window.innerHeight;
-        const progress = Math.min(1, Math.max(0, (winH - rect.top) / (winH * 0.6)));
+        const progress = Math.min(
+          1,
+          Math.max(0, (winH - rect.top) / (winH * 0.6)),
+        );
         el.style.backgroundColor = `rgba(10, 10, 15, ${progress})`;
       });
     };
@@ -147,7 +167,9 @@ export default function Home() {
     <main>
       <div className="page-bg" aria-hidden="true" />
       <header className={`site-header${scrolled ? " scrolled" : ""}`}>
-        <a className="wordmark" href="#top" aria-label="Home">Ranjula.</a>
+        <a className="wordmark" href="#top" aria-label="Home">
+          Ranjula.
+        </a>
         <p className="header-title">UX/UI DESIGNER, DEVELOPER</p>
         <nav className="header-nav">
           <a href="#cases">works,</a>
@@ -188,7 +210,10 @@ export default function Home() {
           </div>
 
           <div className="hero-tagline">
-            <h2 id="hero-title">
+            <h2 id="hero-title text" style={{
+            lineHeight: 2,
+            color: "rgba(255,255,255,0.15)",
+          }}>
               I AM A DEVELOPER AND UX/UI DESIGNER BASED IN SRI LANKA. I HAVE
               MANY YEARS OF EXPERIENCE IN CONSULTING IN ALL AREAS OF DIGITAL. I
               LOVE MINIMAL AND BRUTALIST DESIGN.
@@ -197,7 +222,9 @@ export default function Home() {
               className="outline-button"
               onClick={() => scrollTo("#contact")}
             >
-              <span className="btn-text" data-text="CONTACT ME">CONTACT ME</span>
+              <span className="btn-text" data-text="CONTACT ME">
+                CONTACT ME
+              </span>
             </button>
           </div>
         </div>
@@ -218,7 +245,13 @@ export default function Home() {
           <span className="about-name">Ranjula Ilukpitiya</span>
         </div>
 
-        <p className="about-bio">
+        <p
+          className="about-bio text"
+          style={{
+            lineHeight: 2,
+            color: "rgba(255,255,255,0.15)",
+          }}
+        >
           I USE MY PASSION AND SKILLS TO CREATE DIGITAL PRODUCTS AND
           EXPERIENCES. NATIONAL AND INTERNATIONAL CUSTOMERS RELY ON ME FOR
           DESIGN, IMPLEMENTATION, AND MANAGEMENT OF THEIR DIGITAL PRODUCTS. AS
@@ -269,10 +302,14 @@ export default function Home() {
             className="outline-button"
             onClick={() => scrollTo("#contact")}
           >
-            <span className="btn-text" data-text="CONTACT ME">CONTACT ME</span>
+            <span className="btn-text" data-text="CONTACT ME">
+              CONTACT ME
+            </span>
           </button>
           <button className="outline-button" onClick={() => scrollTo("#cases")}>
-            <span className="btn-text" data-text="SEE OTHER CASES">SEE OTHER CASES</span>
+            <span className="btn-text" data-text="SEE OTHER CASES">
+              SEE OTHER CASES
+            </span>
           </button>
         </div>
       </section>
@@ -325,7 +362,9 @@ export default function Home() {
           ))}
           <div className="awards-view-more">
             <button className="outline-button">
-              <span className="btn-text" data-text="VIEW MORE">VIEW MORE</span>
+              <span className="btn-text" data-text="VIEW MORE">
+                VIEW MORE
+              </span>
             </button>
           </div>
         </div>
@@ -344,8 +383,6 @@ export default function Home() {
       {/* ═══════════ CONTACT ═══════════ */}
       <section className="contact" id="contact" aria-labelledby="contact-title">
         <div className="noise" aria-hidden="true" />
-
-        
 
         <div className="contact-big-text" aria-hidden="true">
           <span className="cut-text">LET&apos;S</span>
@@ -370,7 +407,9 @@ export default function Home() {
               className="outline-button2 cta-btn"
               href="mailto:ninetailscode@gmail.com"
             >
-              <span className="btn-text" data-text="CONTACT ME">CONTACT ME</span>
+              <span className="btn-text" data-text="CONTACT ME">
+                CONTACT ME
+              </span>
             </a>
           </div>
           <nav className="social-links" aria-label="Social links">
