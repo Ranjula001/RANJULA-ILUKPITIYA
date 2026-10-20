@@ -91,13 +91,10 @@
    ═══════════════════════════════════════════════════════ */
 :root {
   --ink: #0a0a0f;
-  --panel: #16151f;
   --cream: #f5f0e8;
   --cream-dim: rgba(245, 240, 232, 0.72);
   --gold: #a78972;
-  --lavender: #cbc9ff;
   --line: rgba(245, 240, 232, 0.22);
-  --painting-bg: none;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -185,6 +182,10 @@ img { display: block; }
   color: var(--cream);
   transform: translateY(-2px);
 }
+.reveal-text {
+  color: rgba(255, 255, 255, 0.15);
+  line-height: 2;
+}
 .mini-sun {
   color: var(--cream);
   font-size: 80px;
@@ -259,6 +260,11 @@ img { display: block; }
   padding: 0 38px 28px;
   background: transparent;
 }
+.about,
+.cases,
+.contact {
+  scroll-margin-top: 72px;
+}
 .hero-layout {
   position: relative;
   height: calc(100svh - 110px);
@@ -281,13 +287,8 @@ img { display: block; }
   padding-top: 80px;
 }
 .cut-text {
-  display: inline-block; /* Required for clip-path to work on text */
-  /* inset(top right bottom left) - Adjust the 40% to change where the cut happens */
+  display: inline-block;
   clip-path: inset(0 0 28% 0);
- 
-}
-.pull-up {
-  margin-top: -0.1em; /* Adjust this value (e.g., -0.1em, -0.3em) */
 }
 .display-title-container {
   position: relative;
@@ -295,7 +296,6 @@ img { display: block; }
   flex-direction: column;
 }
 .designer-line {
-  /* Inherits or applies display-title styles */
   font-family: "Tusker Grotesk", Impact, sans-serif;
   font-weight: 600;
   font-size: 18em;
@@ -318,39 +318,8 @@ img { display: block; }
   font-size: 18em;
   color: var(--cream);
   line-height: 1.3;
-  
-  /* POSITIONING MAGIC */
   position: relative;
-  top: -0.25em; /* Adjust this value (e.g., -0.3em, -0.4em, or -80px) to slide it up exactly where you want */
-}
-.display-title {
-  font-family: "Tusker Grotesk", Impact, sans-serif;
-  font-weight: 600;
-  font-size: clamp(120px, 18vw, 450px);
-  letter-spacing: 0.02em;
-  line-height: 0.8;
-  color: var(--cream);
-  white-space: nowrap;
-}
-.display-title b {
-  font-family: "Migra", Georgia, serif;
-  font-size: 0.1em;
-  vertical-align: middle;
-  margin-left: 18px;
-  font-weight: 100;
-}
-.hero-person {
-  position: absolute;
-  z-index: 1;
-  width: min(55vw, 780px);
-  height: min(68vw, 860px);
-  bottom: -5%;
-  left: 28%;
-  animation: portrait-in 1.15s 0.1s cubic-bezier(0.18, 0.87, 0.22, 1) both;
-}
-.hero-person img {
-  object-fit: contain;
-  object-position: bottom center;
+  top: -0.25em;
 }
 .availability {
   position: absolute;
@@ -399,6 +368,11 @@ img { display: block; }
   line-height: 1.6;
   margin-bottom: 22px;
   color: var(--cream-dim);
+}
+.hero-tagline h2.reveal-text,
+.about-bio.reveal-text {
+  color: rgba(255, 255, 255, 0.15);
+  line-height: 2;
 }
 .hero-tagline .outline-button { font-size: 2em; }
 .scroll-cue {
@@ -575,12 +549,6 @@ img { display: block; }
   letter-spacing: 0.1em;
   animation: marquee-scroll 15s linear infinite;
 }
-.awards-view-more {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 32px;
-}
-
 /* ═══════════════════════════════════════════════════════
    SELECTED CASES
    ═══════════════════════════════════════════════════════ */
@@ -694,6 +662,7 @@ img { display: block; }
    ═══════════════════════════════════════════════════════ */
 .contact {
   position: relative;
+  isolation: isolate;
   overflow: hidden;
   min-height: 100vh;
   padding: clamp(60px, 8vw, 120px) clamp(30px, 5vw, 80px) 30px;
@@ -709,14 +678,13 @@ img { display: block; }
   position: absolute;
   left: 3%;
   bottom: 8%;
-  z-index: -1;
+  z-index: 0;
   display: grid;
-  row-gap: -20px;
   font-family: "Tusker Grotesk", Impact, sans-serif;
   font-weight: 600;
   font-size: 24em;
   line-height: 1.1;
-  color: rgba(245, 240, 232, 0.993);
+  color: rgba(245, 240, 232, 0.14);
   pointer-events: none;
 }
 
@@ -781,18 +749,15 @@ img { display: block; }
   flex: 1;
 }
 .cta-btn { flex-shrink: 0; }
-.social-links {
-  display: flex;
-  gap: clamp(20px, 5vw, 75px);
+.contact-note {
   padding-top: 20px;
   border-top: 1px solid var(--line);
   font-family: "Neue Montreal", Georgia, serif;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.06em;
+  color: var(--cream-dim);
 }
-.social-links a { transition: color 0.2s; }
-.social-links a:hover { color: var(--gold); }
 
 /* ═══════════════════════════════════════════════════════
    ANIMATIONS
@@ -801,21 +766,28 @@ img { display: block; }
   from { opacity: 0; transform: translateY(28px); }
   to   { opacity: 1; transform: none; }
 }
-@keyframes portrait-in {
-  from { opacity: 0; transform: translateY(60px) scale(0.96); }
-  to   { opacity: 1; transform: none; }
-}
-@keyframes spin   { to { transform: rotate(360deg); } }
 @keyframes bob    { to { transform: translateY(6px); } }
 @keyframes drift  { to { transform: translateX(-50%); } }
-@keyframes float  { to { transform: translateY(-14px) rotate(2deg); } }
 @keyframes marquee-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
 /* ═══════════════════════════════════════════════════════
-   RESPONSIVE — ≤ 760px
+   RESPONSIVE — TABLET
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .hero { padding-inline: 24px; }
+  .site-header { padding-inline: 24px; }
+  .designer-line,
+  .developer-line { font-size: clamp(110px, 16vw, 190px); }
+  .availability { right: 8%; }
+  .hero-tagline { max-width: min(44vw, 480px); }
+  .about { padding-inline: clamp(24px, 6vw, 80px); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE
    ═══════════════════════════════════════════════════════ */
 @media (max-width: 760px) {
   /* header */
@@ -827,14 +799,18 @@ img { display: block; }
   /* hero */
   .hero-layout { height: 730px; min-height: 0; }
   .creative { margin-bottom: 14px; }
-  .display-title { font-size: clamp(80px, 26vw, 130px); }
-  .hero-person { width: 110vw; height: 540px; left: -12%; bottom: 8%; }
+  .designer-line,
+  .developer-line { font-size: clamp(64px, 19vw, 90px); line-height: 1.05; }
+  .developer-line { top: -0.08em; }
+  .designer-line b { margin-left: 6px; }
   .availability { top: 26%; right: 3%; gap: 4px; }
   .availability strong { font-size: 85px; }
   .availability span:last-child { font-size: 12px; }
   .mini-sun { font-size: 26px; }
   .hero-tagline { right: 0; left: 12px; bottom: 1%; max-width: 100%; }
   .hero-tagline h2 { font-size: 14px; }
+  .outline-button,
+  .outline-button2 { padding: 7px 13px; font-size: 13px; }
   .scroll-cue { display: none; }
 
   /* about */
@@ -846,8 +822,11 @@ img { display: block; }
   /* awards */
   .awards { grid-template-columns: 1fr; padding: 60px 18px; gap: 40px; }
   .awards-heading { font-size: clamp(42px, 12vw, 72px); }
-  .awards-table-head { font-size: 12px; }
-  .awards-row { font-size: 11px; padding: 14px 0; }
+  .awards-table-head,
+  .awards-row { grid-template-columns: 1fr 1fr; font-size: 11px; }
+  .awards-table-head span:last-child { display: none; }
+  .award-project { grid-column: 1 / -1; }
+  .awards-row { padding: 14px 0; }
 
   /* cases */
   .cases { padding: 60px 18px; }
@@ -869,19 +848,7 @@ img { display: block; }
   .skill-pill { padding: 8px 16px; font-size: 11px; }
   .contact-cta { flex-direction: column; align-items: flex-start; gap: 16px; }
   .contact-cta h2 { font-size: 20px; }
-  .social-links { flex-wrap: wrap; gap: 14px 24px; font-size: 11px; }
-
-  /* stack icons mobile */
-  .stack-icon { border-radius: 10px; }
-  .top-left     { top: 6%;  left: 5%;  }
-  .top-mid      { top: 5%;  left: 42%; }
-  .top-right    { top: 7%;  right: 6%; }
-  .left-mid     { top: 25%; left: 5%;  }
-  .right-mid    { top: 25%; right: 4%; }
-  .left-low     { top: 45%; left: 4%;  }
-  .right-low    { top: 45%; right: 4%; }
-  .right-bottom { bottom: 35%; right: 6%; }
-  .bottom       { bottom: 28%; right: 18%; }
+  .contact-note { font-size: 10px; line-height: 1.5; }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -894,4 +861,5 @@ img { display: block; }
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+  .reveal-text { color: var(--cream) !important; }
 }

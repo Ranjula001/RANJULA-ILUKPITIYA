@@ -4,7 +4,7 @@ import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /* ── data ────────────────────────────────────────────── */
 
@@ -89,18 +89,6 @@ const featuredSites = [
   "FIGMA COMMUNITY",
 ];
 
-const stackIcons = [
-  { name: "Tailwind", src: "/assets/Tech Stack Logos.svg", pos: "top-left" },
-  { name: "Netlify", src: "/assets/Netlify.png", pos: "top-mid" },
-  { name: "MongoDB", src: "/assets/Tech Stack Logos-1.svg", pos: "top-right" },
-  { name: "JS", src: "/assets/Tech Stack Logos-2.svg", pos: "left-mid" },
-  { name: "React", src: "/assets/Tech Stack Logos-3.svg", pos: "right-mid" },
-  { name: "Node", src: "/assets/Tech Stack Logos-4.svg", pos: "left-low" },
-  { name: "Postman", src: "/assets/Tech Stack Logos-5.svg", pos: "right-low" },
-  { name: "Vercel", src: "/assets/Vercel.png", pos: "right-bottom" },
-  { name: "GitHub", src: "/assets/Tech Stack Logos-7.svg", pos: "bottom" },
-];
-
 /* ── helpers ─────────────────────────────────────────── */
 
 function scrollTo(id: string) {
@@ -112,41 +100,78 @@ function scrollTo(id: string) {
 export default function Home() {
   const [hoveredAward, setHoveredAward] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [today, setToday] = useState<{ day: string; month: string } | null>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const heroTextRef = useRef<HTMLHeadingElement>(null);
+  const aboutRef = useRef<HTMLElement>(null);
+  const aboutTextRef = useRef<HTMLParagraphElement>(null);
+  const casesRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const suns = document.querySelectorAll<HTMLElement>(".mini-sun");
-    const aboutEl = document.getElementById("about") as HTMLElement | null;
-    const casesEl = document.getElementById("cases") as HTMLElement | null;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     gsap.registerPlugin(ScrollTrigger, SplitText);
-    const split = SplitText.create(".text", { type: "words" });
-
-    gsap.to(split.words, {
-      color: "#fff",
-      stagger: 0.1,
-      scrollTrigger: {
-        trigger: ".text",
-        start: "top center",
-        end: "bottom center",
-        scrub: true,
+    const revealTargets = [
+      {
+        section: heroRef.current,
+        text: heroTextRef.current,
+        stagger: 0.055,
       },
-    });
+      {
+        section: aboutRef.current,
+        text: aboutTextRef.current,
+        stagger: 0.035,
+      },
+    ];
+    const textReveals = prefersReducedMotion
+      ? []
+      : revealTargets.flatMap(({ section, text, stagger }) => {
+          if (!section || !text) return [];
+
+          const split = SplitText.create(text, { type: "words", aria: "auto" });
+          const tween = gsap.to(split.words, {
+            color: "#fff",
+            duration: 0.8,
+            ease: "none",
+            stagger,
+            scrollTrigger: {
+              trigger: section,
+              start: "top top",
+              end: () => `+=${Math.round(window.innerHeight * 0.9)}`,
+              scrub: true,
+              pin: true,
+              pinSpacing: true,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          return [{ split, tween }];
+        });
 
     let lastScrollY = window.scrollY;
     let rotation = 0;
+    let frameId: number | null = null;
 
-    const handleScroll = () => {
+    const updateScrollState = () => {
+      frameId = null;
       const y = window.scrollY;
       const delta = y - lastScrollY;
       rotation += delta * 0.5;
-      suns.forEach((s) => (s.style.transform = `rotate(${rotation}deg)`));
+      if (!prefersReducedMotion) {
+        suns.forEach((s) => (s.style.transform = `rotate(${rotation}deg)`));
+      }
       lastScrollY = y;
 
-      // navbar glass
-      setScrolled(y > 10);
+      setScrolled((wasScrolled) => {
+        const isScrolled = y > 10;
+        return wasScrolled === isScrolled ? wasScrolled : isScrolled;
+      });
 
-      // section bg fade — drive backgroundColor directly
-      [aboutEl, casesEl].forEach((el) => {
+      [aboutRef.current, casesRef.current].forEach((el) => {
         if (!el) return;
         const rect = el.getBoundingClientRect();
         const winH = window.innerHeight;
@@ -158,9 +183,30 @@ export default function Home() {
       });
     };
 
+    const handleScroll = () => {
+      if (frameId === null) frameId = window.requestAnimationFrame(updateScrollState);
+    };
+
+    const dateFrameId = window.requestAnimationFrame(() => {
+      const now = new Date();
+      setToday({
+        day: now.toLocaleDateString("en-US", { day: "2-digit" }),
+        month: now.toLocaleDateString("en-US", { month: "short" }),
+      });
+    });
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    updateScrollState();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+      window.cancelAnimationFrame(dateFrameId);
+      textReveals.forEach(({ split, tween }) => {
+        tween.scrollTrigger?.kill();
+        tween.kill();
+        split.revert();
+      });
+    };
   }, []);
 
   return (
@@ -179,7 +225,7 @@ export default function Home() {
       </header>
 
       {/* ═══════════ HERO ═══════════ */}
-      <section className="hero" aria-labelledby="hero-title">
+      <section className="hero" ref={heroRef} aria-labelledby="hero-title">
         <div className="noise" aria-hidden="true" />
 
         <div className="hero-layout" id="top">
@@ -197,23 +243,18 @@ export default function Home() {
 
           <div className="availability" aria-label="Available for work">
             <span className="mini-sun absolute -top-2 -left-12">✺</span>
-            <strong>
-              {new Date().toLocaleDateString("en-US", { day: "2-digit" })}
-            </strong>
+            <strong>{today?.day ?? "--"}</strong>
             <span>
-              <b>{new Date().toLocaleString("default", { month: "short" })}</b>
+              <b>{today?.month ?? "---"}</b>
               <br />
-              <a className="availability-text">available</a>
+              <span className="availability-text">available</span>
               <br />
-              <a className="availability-text">for work</a>
+              <span className="availability-text">for work</span>
             </span>
           </div>
 
           <div className="hero-tagline">
-            <h2 id="hero-title text" style={{
-            lineHeight: 2,
-            color: "rgba(255,255,255,0.15)",
-          }}>
+            <h2 id="hero-title" className="reveal-text" ref={heroTextRef}>
               I AM A DEVELOPER AND UX/UI DESIGNER BASED IN SRI LANKA. I HAVE
               MANY YEARS OF EXPERIENCE IN CONSULTING IN ALL AREAS OF DIGITAL. I
               LOVE MINIMAL AND BRUTALIST DESIGN.
@@ -221,8 +262,13 @@ export default function Home() {
             <button
               className="outline-button"
               onClick={() => scrollTo("#contact")}
+              aria-label="Contact me"
             >
-              <span className="btn-text" data-text="CONTACT ME">
+              <span
+                className="btn-text"
+                data-text="CONTACT ME"
+                aria-hidden="true"
+              >
                 CONTACT ME
               </span>
             </button>
@@ -235,23 +281,28 @@ export default function Home() {
       </section>
 
       {/* ═══════════ ABOUT ═══════════ */}
-      <section className="about" id="about" aria-labelledby="about-title">
+      <section
+        className="about"
+        id="about"
+        ref={aboutRef}
+        aria-labelledby="about-title"
+      >
         <div className="about-heading">
-          <h2 className="cut-text" id="about-title">
+          <h2
+            className="cut-text"
+            id="about-title"
+            aria-label="Hello, I am Ranjula"
+          >
             {"HELLO I AM RANJULA".split("").map((ch, i) => (
-              <span key={i}>{ch === " " ? "\u00A0" : ch}</span>
+              <span key={i} aria-hidden="true">
+                {ch === " " ? "\u00A0" : ch}
+              </span>
             ))}
           </h2>
           <span className="about-name">Ranjula Ilukpitiya</span>
         </div>
 
-        <p
-          className="about-bio text"
-          style={{
-            lineHeight: 2,
-            color: "rgba(255,255,255,0.15)",
-          }}
-        >
+        <p className="about-bio reveal-text" ref={aboutTextRef}>
           I USE MY PASSION AND SKILLS TO CREATE DIGITAL PRODUCTS AND
           EXPERIENCES. NATIONAL AND INTERNATIONAL CUSTOMERS RELY ON ME FOR
           DESIGN, IMPLEMENTATION, AND MANAGEMENT OF THEIR DIGITAL PRODUCTS. AS
@@ -270,7 +321,12 @@ export default function Home() {
       </section>
 
       {/* ═══════════ SELECTED CASES ═══════════ */}
-      <section className="cases" id="cases" aria-labelledby="cases-title">
+      <section
+        className="cases"
+        id="cases"
+        ref={casesRef}
+        aria-labelledby="cases-title"
+      >
         <h2 id="cases-title" className="cases-header">
           <span className="mini-sun cases-sun">✺</span> SELECTED CASES
         </h2>
@@ -289,7 +345,7 @@ export default function Home() {
                 src={c.image}
                 alt={c.name}
                 fill
-                sizes="(max-width:700px) 90vw, 50vw"
+                sizes="(max-width: 760px) 90vw, 50vw"
                 style={{ objectFit: c.fit }}
               />
             </div>
@@ -297,18 +353,18 @@ export default function Home() {
         ))}
 
         <div className="cases-cta">
-          <span className="cta-label">Yes, these are some buttons</span>
+          <span className="cta-label">Have a project in mind?</span>
           <button
             className="outline-button"
             onClick={() => scrollTo("#contact")}
+            aria-label="Contact me"
           >
-            <span className="btn-text" data-text="CONTACT ME">
+            <span
+              className="btn-text"
+              data-text="CONTACT ME"
+              aria-hidden="true"
+            >
               CONTACT ME
-            </span>
-          </button>
-          <button className="outline-button" onClick={() => scrollTo("#cases")}>
-            <span className="btn-text" data-text="SEE OTHER CASES">
-              SEE OTHER CASES
             </span>
           </button>
         </div>
@@ -360,13 +416,6 @@ export default function Home() {
               )}
             </div>
           ))}
-          <div className="awards-view-more">
-            <button className="outline-button">
-              <span className="btn-text" data-text="VIEW MORE">
-                VIEW MORE
-              </span>
-            </button>
-          </div>
         </div>
       </section>
 
@@ -406,18 +455,20 @@ export default function Home() {
             <a
               className="outline-button2 cta-btn"
               href="mailto:ninetailscode@gmail.com"
+              aria-label="Email Ranjula"
             >
-              <span className="btn-text" data-text="CONTACT ME">
+              <span
+                className="btn-text"
+                data-text="CONTACT ME"
+                aria-hidden="true"
+              >
                 CONTACT ME
               </span>
             </a>
           </div>
-          <nav className="social-links" aria-label="Social links">
-            <a href="#top">LINKEDIN</a>
-            <a href="#top">BEHANCE</a>
-            <a href="#top">FACEBOOK</a>
-            <a href="#top">INSTAGRAM</a>
-          </nav>
+          <p className="contact-note">
+            Available for independent and collaborative work worldwide.
+          </p>
         </div>
       </section>
     </main>
