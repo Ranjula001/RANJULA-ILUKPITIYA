@@ -8,36 +8,26 @@ import { useEffect, useRef, useState } from "react";
 
 /* ── data ────────────────────────────────────────────── */
 
-const awards = [
+const experiences = [
   {
-    award: "WEBSITE OF THE DAY",
-    platform: "CSS DESIGN AWARDS",
-    project: "Prime Sentinel insurance solutions",
+    role: "FRONTEND DEVELOPER",
+    company: "CodeZilla",
+    duration: "1 Year · Internship",
   },
   {
-    award: "DOTY SPECIAL KUDOS",
-    platform: "CSS DESIGN AWARDS",
-    project: "Bimara Holiday",
+    role: "UI/UX DESIGNER & FRONTEND ENGINEER",
+    company: "KynoLabs",
+    duration: "4 Months · Contract",
   },
   {
-    award: "WEBSITE OF THE DAY",
-    platform: "CSS DESIGN AWARDS",
-    project: "Portfolio v3",
+    role: "GRADUATE TRAINEE / SAP ANALYST ENGINEER",
+    company: "HCLTech Lanka",
+    duration: "Present",
   },
   {
-    award: "WEBSITE OF THE DAY",
-    platform: "CSS DESIGN AWARDS",
-    project: "M99Labs Studio",
-  },
-  {
-    award: "WEBSITE OF THE DAY",
-    platform: "CSS DESIGN AWARDS",
-    project: "Portfolio v2",
-  },
-  {
-    award: "WEBSITE OF THE DAY",
-    platform: "CSS DESIGN AWARDS",
-    project: "Ranjula Folio",
+    role: "FOUNDER & CEO",
+    company: "M99Labs Sri Lanka",
+    duration: "2025 · Startup",
   },
 ];
 
@@ -98,7 +88,7 @@ function scrollTo(id: string) {
 /* ── component ───────────────────────────────────────── */
 
 export default function Home() {
-  const [hoveredAward, setHoveredAward] = useState<number | null>(null);
+  const [hoveredExp, setHoveredExp] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [today, setToday] = useState<{ day: string; month: string } | null>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -370,20 +360,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════ AWARDS ═══════════ */}
+      {/* ═══════════ EXPERIENCE ═══════════ */}
       <section className="awards" aria-labelledby="awards-title">
         <div className="noise" aria-hidden="true" />
 
         <div className="awards-left">
           <h2 id="awards-title" className="awards-heading">
-            I AM HONORED TO WORK WITH SPECIAL PEOPLE
+            BUILDING THINGS THAT MATTER
           </h2>
-          <p className="awards-sub">&amp; win their heart.</p>
+          <p className="awards-sub">&amp; people who trust me.</p>
           <div className="awards-badge">
             <span className="mini-sun">✺</span>
             <span className="badge-eyes">+2</span>
             <span className="badge-label">
-              <b>Of</b>
+              <b>Yrs</b>
               <br />
               Experience
             </span>
@@ -392,26 +382,26 @@ export default function Home() {
 
         <div className="awards-right">
           <div className="awards-table-head">
-            <span>AWARD</span>
-            <span>PLATFORM</span>
-            <span>PROJECT</span>
+            <span>ROLE</span>
+            <span>COMPANY</span>
+            <span>DURATION</span>
           </div>
-          {awards.map((a, i) => (
+          {experiences.map((e, i) => (
             <div
               key={i}
-              className={`awards-row${hoveredAward === i ? " is-hovered" : ""}`}
-              onMouseEnter={() => setHoveredAward(i)}
-              onMouseLeave={() => setHoveredAward(null)}
+              className={`awards-row${hoveredExp === i ? " is-hovered" : ""}`}
+              onMouseEnter={() => setHoveredExp(i)}
+              onMouseLeave={() => setHoveredExp(null)}
             >
-              {hoveredAward === i ? (
+              {hoveredExp === i ? (
                 <div className="awards-marquee">
-                  <span>{Array(20).fill(a.award).join("   ")}</span>
+                  <span>{Array(20).fill(e.role).join("   ")}</span>
                 </div>
               ) : (
                 <>
-                  <span>{a.award}</span>
-                  <span>{a.platform}</span>
-                  <span className="award-project">{a.project}</span>
+                  <span>{e.role}</span>
+                  <span>{e.company}</span>
+                  <span className="award-project">{e.duration}</span>
                 </>
               )}
             </div>
@@ -466,9 +456,15 @@ export default function Home() {
               </span>
             </a>
           </div>
-          <p className="contact-note">
-            Available for independent and collaborative work worldwide.
-          </p>
+          <div className="contact-note">
+            <p>Available for independent and collaborative work worldwide.</p>
+            <div className="social-links">
+              <a href="https://linkedin.com/in/ranjula-ilukpitiya" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a>
+              <a href="https://instagram.com/ranjula.ilukpitiya" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+              <a href="https://facebook.com/ranjula.ilukpitiya" target="_blank" rel="noopener noreferrer" aria-label="Facebook">Facebook</a>
+              <a href="https://github.com/ranjula-ilukpitiya" target="_blank" rel="noopener noreferrer" aria-label="GitHub">GitHub</a>
+            </div>
+          </div>
         </div>
       </section>
     </main>
