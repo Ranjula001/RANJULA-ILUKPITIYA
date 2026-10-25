@@ -10,9 +10,9 @@ import { useEffect, useRef, useState } from "react";
 
 const experiences = [
   {
-    role: "FRONTEND DEVELOPER",
-    company: "CodeZilla",
-    duration: "1 Year · Internship",
+    role: "SAP ANALYST/ENGINEER",
+    company: "HCLTech Lanka",
+    duration: "Present",
   },
   {
     role: "UI/UX DESIGNER & FRONTEND ENGINEER",
@@ -20,14 +20,9 @@ const experiences = [
     duration: "4 Months · Contract",
   },
   {
-    role: "GRADUATE TRAINEE / SAP ANALYST ENGINEER",
-    company: "HCLTech Lanka",
-    duration: "Present",
-  },
-  {
-    role: "FOUNDER & CEO",
-    company: "M99Labs Sri Lanka",
-    duration: "2025 · Startup",
+    role: "FRONTEND DEVELOPER",
+    company: "CodeZilla",
+    duration: "1 Year · Internship",
   },
 ];
 
@@ -95,13 +90,14 @@ export default function Home() {
   const heroTextRef = useRef<HTMLHeadingElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const aboutTextRef = useRef<HTMLParagraphElement>(null);
-  const casesRef = useRef<HTMLElement>(null);
+  const aboutWorkCanvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const suns = document.querySelectorAll<HTMLElement>(".mini-sun");
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const isMobile = window.matchMedia("(max-width: 760px)").matches;
 
     gsap.registerPlugin(ScrollTrigger, SplitText);
     const revealTargets = [
@@ -116,7 +112,7 @@ export default function Home() {
         stagger: 0.035,
       },
     ];
-    const textReveals = prefersReducedMotion
+    const textReveals = prefersReducedMotion || isMobile
       ? []
       : revealTargets.flatMap(({ section, text, stagger }) => {
           if (!section || !text) return [];
@@ -132,8 +128,8 @@ export default function Home() {
               start: "top top",
               end: () => `+=${Math.round(window.innerHeight * 0.9)}`,
               scrub: true,
-              pin: true,
-              pinSpacing: true,
+              pin: false,
+              pinSpacing: false,
               anticipatePin: 1,
               invalidateOnRefresh: true,
             },
@@ -161,16 +157,15 @@ export default function Home() {
         return wasScrolled === isScrolled ? wasScrolled : isScrolled;
       });
 
-      [aboutRef.current, casesRef.current].forEach((el) => {
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const winH = window.innerHeight;
+      const canvas = aboutWorkCanvasRef.current;
+      if (canvas) {
+        const { top } = canvas.getBoundingClientRect();
         const progress = Math.min(
           1,
-          Math.max(0, (winH - rect.top) / (winH * 0.6)),
+          Math.max(0, (window.innerHeight * 0.85 - top) / (window.innerHeight * 0.45)),
         );
-        el.style.backgroundColor = `rgba(10, 10, 15, ${progress})`;
-      });
+        canvas.style.backgroundColor = `rgba(10, 10, 15, ${progress * 0.55})`;
+      }
     };
 
     const handleScroll = () => {
@@ -185,10 +180,12 @@ export default function Home() {
       });
     });
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
     updateScrollState();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
       if (frameId !== null) window.cancelAnimationFrame(frameId);
       window.cancelAnimationFrame(dateFrameId);
       textReveals.forEach(({ split, tween }) => {
@@ -265,100 +262,100 @@ export default function Home() {
           </div>
         </div>
 
-        <a className="scroll-cue" href="#about" aria-label="Scroll down">
-          SCROLL TO EXPLORE <span>↓</span>
-        </a>
       </section>
 
-      {/* ═══════════ ABOUT ═══════════ */}
-      <section
-        className="about"
-        id="about"
-        ref={aboutRef}
-        aria-labelledby="about-title"
-      >
-        <div className="about-heading">
-          <h2
-            className="cut-text"
-            id="about-title"
-            aria-label="Hello, I am Ranjula"
-          >
-            {"HELLO I AM RANJULA".split("").map((ch, i) => (
-              <span key={i} aria-hidden="true">
-                {ch === " " ? "\u00A0" : ch}
-              </span>
-            ))}
-          </h2>
-          <span className="about-name">Ranjula Ilukpitiya</span>
-        </div>
-
-        <p className="about-bio reveal-text" ref={aboutTextRef}>
-          I USE MY PASSION AND SKILLS TO CREATE DIGITAL PRODUCTS AND
-          EXPERIENCES. NATIONAL AND INTERNATIONAL CUSTOMERS RELY ON ME FOR
-          DESIGN, IMPLEMENTATION, AND MANAGEMENT OF THEIR DIGITAL PRODUCTS. AS
-          AN INDEPENDENT, I WORK ALSO WITH WEB AGENCIES, COMPANIES, STARTUPS AND
-          INDIVIDUALS TO CREATE A BLUEPRINT FOR THE DIGITAL BUSINESS. FOUNDER
-          AND CEO OF M99LABS, A PRODUCT STUDIO DELIVERING SCALABLE DIGITAL
-          SOLUTIONS. ALSO, SAP SR DB ANALYST BRINGING ENTERPRISE EXPERTISE TO
-          EVERY PROJECT.
-        </p>
-
-        <div className="about-note">
-          <p>I AM NOT THIS ONE</p>
-          <small>Michelangelo&apos;s David</small>
-          <span className="about-arrow">↗</span>
-        </div>
-      </section>
-
-      {/* ═══════════ SELECTED CASES ═══════════ */}
-      <section
-        className="cases"
-        id="cases"
-        ref={casesRef}
-        aria-labelledby="cases-title"
-      >
-        <h2 id="cases-title" className="cases-header">
-          <span className="mini-sun cases-sun">✺</span> SELECTED CASES
-        </h2>
-
-        {cases.map((c, i) => (
-          <article
-            key={c.name}
-            className={`case-item ${i % 2 === 0 ? "img-right" : "img-left"}`}
-          >
-            <div className="case-text">
-              <h3>{c.name}</h3>
-              <p>{c.subtitle}</p>
-            </div>
-            <div className="case-image">
-              <Image
-                src={c.image}
-                alt={c.name}
-                fill
-                sizes="(max-width: 760px) 90vw, 50vw"
-                style={{ objectFit: c.fit }}
-              />
-            </div>
-          </article>
-        ))}
-
-        <div className="cases-cta">
-          <span className="cta-label">Have a project in mind?</span>
-          <button
-            className="outline-button"
-            onClick={() => scrollTo("#contact")}
-            aria-label="Contact me"
-          >
-            <span
-              className="btn-text"
-              data-text="CONTACT ME"
-              aria-hidden="true"
+      <div className="about-work-canvas" ref={aboutWorkCanvasRef}>
+        {/* ═══════════ ABOUT ═══════════ */}
+        <section
+          className="about"
+          id="about"
+          ref={aboutRef}
+          aria-labelledby="about-title"
+        >
+          <div className="about-heading">
+            <h2
+              className="cut-text"
+              id="about-title"
+              aria-label="Hello, I am Ranjula"
             >
-              CONTACT ME
-            </span>
-          </button>
-        </div>
-      </section>
+              {"HELLO I AM RANJULA".split(" ").map((word) => (
+                <span className="about-word" key={word} aria-hidden="true">
+                  {word.split("").map((ch, i) => (
+                    <span key={`${word}-${i}`}>{ch}</span>
+                  ))}
+                </span>
+              ))}
+            </h2>
+            <span className="about-name">Ranjula Ilukpitiya</span>
+          </div>
+
+          <p className="about-bio reveal-text" ref={aboutTextRef}>
+            I USE MY PASSION AND SKILLS TO CREATE DIGITAL PRODUCTS AND
+            EXPERIENCES. NATIONAL AND INTERNATIONAL CUSTOMERS RELY ON ME FOR
+            DESIGN, IMPLEMENTATION, AND MANAGEMENT OF THEIR DIGITAL PRODUCTS. AS
+            AN INDEPENDENT, I WORK ALSO WITH WEB AGENCIES, COMPANIES, STARTUPS AND
+            INDIVIDUALS TO CREATE A BLUEPRINT FOR THE DIGITAL BUSINESS. FOUNDER
+            AND CEO OF M99LABS, A PRODUCT STUDIO DELIVERING SCALABLE DIGITAL
+            SOLUTIONS. ALSO, SAP SR DB ANALYST BRINGING ENTERPRISE EXPERTISE TO
+            EVERY PROJECT.
+          </p>
+
+          <div className="about-note">
+            <p>I AM NOT THIS ONE</p>
+            <small>Michelangelo&apos;s David</small>
+            <span className="about-arrow">↗</span>
+          </div>
+        </section>
+
+        {/* ═══════════ SELECTED CASES ═══════════ */}
+        <section
+          className="cases"
+          id="cases"
+          aria-labelledby="cases-title"
+        >
+          <h2 id="cases-title" className="cases-header">
+            <span className="mini-sun cases-sun">✺</span> SELECTED CASES
+          </h2>
+
+          {cases.map((c, i) => (
+            <article
+              key={c.name}
+              className={`case-item ${i % 2 === 0 ? "img-right" : "img-left"}`}
+            >
+              <div className="case-text">
+                <h3>{c.name}</h3>
+                <p>{c.subtitle}</p>
+              </div>
+              <div className="case-image">
+                <Image
+                  src={c.image}
+                  alt={c.name}
+                  fill
+                  sizes="(max-width: 760px) 90vw, 50vw"
+                  style={{ objectFit: c.fit }}
+                />
+              </div>
+            </article>
+          ))}
+
+          <div className="cases-cta">
+            <span className="cta-label">Have a project in mind?</span>
+            <button
+              className="outline-button"
+              onClick={() => scrollTo("#contact")}
+              aria-label="Contact me"
+            >
+              <span
+                className="btn-text"
+                data-text="CONTACT ME"
+                aria-hidden="true"
+              >
+                CONTACT ME
+              </span>
+            </button>
+          </div>
+        </section>
+      </div>
 
       {/* ═══════════ EXPERIENCE ═══════════ */}
       <section className="awards" aria-labelledby="awards-title">
