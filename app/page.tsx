@@ -80,6 +80,46 @@ function scrollTo(id: string) {
   document.querySelector(id)?.scrollIntoView({ behavior: "smooth" });
 }
 
+function PortfolioPreloader() {
+  const [visible, setVisible] = useState(true);
+  const [leaving, setLeaving] = useState(false);
+
+  useEffect(() => {
+    const exitDuration = 850;
+    const totalDuration = 8000;
+    const leaveTimer = window.setTimeout(
+      () => setLeaving(true),
+      totalDuration - exitDuration,
+    );
+    const removeTimer = window.setTimeout(() => setVisible(false), totalDuration);
+
+    return () => {
+      window.clearTimeout(leaveTimer);
+      window.clearTimeout(removeTimer);
+    };
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <div
+      className={`portfolio-preloader${leaving ? " is-leaving" : ""}`}
+      role="status"
+      aria-live="polite"
+      aria-label="Loading portfolio"
+    >
+      <div className="preloader-center">
+        <span className="preloader-sun" aria-hidden="true">✺</span>
+        <p className="preloader-title" aria-label="Ranjula">
+          <span className="preloader-title-base" aria-hidden="true">RANJULA</span>
+          <span className="preloader-title-fill" aria-hidden="true">RANJULA</span>
+        </p>
+        <p className="preloader-caption">UI/UX DESIGNER &amp; FRONTEND DEVELOPER</p>
+      </div>
+    </div>
+  );
+}
+
 /* ── component ───────────────────────────────────────── */
 
 export default function Home() {
@@ -92,6 +132,7 @@ export default function Home() {
   const heroTextRef = useRef<HTMLHeadingElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const aboutTextRef = useRef<HTMLParagraphElement>(null);
+  const aboutWorkCanvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const suns = document.querySelectorAll<HTMLElement>(".mini-sun");
@@ -184,6 +225,16 @@ export default function Home() {
         const isScrolled = y > 10;
         return wasScrolled === isScrolled ? wasScrolled : isScrolled;
       });
+
+      const canvas = aboutWorkCanvasRef.current;
+      if (canvas) {
+        const { top } = canvas.getBoundingClientRect();
+        const progress = Math.min(
+          1,
+          Math.max(0, (window.innerHeight * 0.85 - top) / (window.innerHeight * 0.45)),
+        );
+        canvas.style.setProperty("--canvas-shade", progress.toFixed(3));
+      }
     };
 
     const handleScroll = () => {
@@ -263,6 +314,7 @@ export default function Home() {
 
   return (
     <main>
+      <PortfolioPreloader />
       <div className="page-bg" aria-hidden="true" />
       <header className={`site-header${scrolled ? " scrolled" : ""}${heroHolding ? " hero-holding" : ""}`}>
         <a className="wordmark" href="#top" aria-label="Home">
@@ -329,7 +381,7 @@ export default function Home() {
 
       </section>
 
-      <div className="about-work-canvas">
+      <div className="about-work-canvas" ref={aboutWorkCanvasRef}>
         {/* ═══════════ ABOUT ═══════════ */}
         <section
           className="about"
@@ -367,7 +419,7 @@ export default function Home() {
 
           <div className="about-note">
             <p>I AM NOT THIS ONE</p>
-            <small>Michelangelo&apos;s David</small>
+            <small>AI generated 3D model</small>
             <span className="about-arrow">↗</span>
           </div>
         </section>
@@ -521,10 +573,9 @@ export default function Home() {
           <div className="contact-note">
             <p>Available for independent and collaborative work worldwide.</p>
             <div className="social-links">
-              <a href="https://linkedin.com/in/ranjula-ilukpitiya" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a>
-              <a href="https://instagram.com/ranjula.ilukpitiya" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
-              <a href="https://facebook.com/ranjula.ilukpitiya" target="_blank" rel="noopener noreferrer" aria-label="Facebook">Facebook</a>
-              <a href="https://github.com/ranjula-ilukpitiya" target="_blank" rel="noopener noreferrer" aria-label="GitHub">GitHub</a>
+              <a href="https://www.linkedin.com/in/ranjula-illukpitiya-95b407226" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a>
+              <a href="https://instagram.com/ranjula_ilukpitiya" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+              <a href="https://github.com/Ranjula001" target="_blank" rel="noopener noreferrer" aria-label="GitHub">GitHub</a>
             </div>
           </div>
         </div>

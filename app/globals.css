@@ -200,7 +200,7 @@ img { display: block; }
   inset: 0;
   z-index: -1;
   --backdrop-shade: 0.3;
-  background: url("/assets/Heavenly.png") center/cover no-repeat;
+  background: url("/Noir.png") center/cover no-repeat;
 }
 .page-bg::after {
   content: "";
@@ -208,6 +208,68 @@ img { display: block; }
   inset: 0;
   background: rgba(10, 10, 15, var(--backdrop-shade));
   transition: background-color 0.15s ease;
+}
+
+.portfolio-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: clamp(18px, 2.2vw, 36px);
+  color: var(--cream);
+  background: var(--ink);
+  transition: transform 0.85s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.portfolio-preloader.is-leaving {
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+.preloader-center {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.preloader-sun {
+  display: block;
+  margin-bottom: clamp(12px, 2vw, 28px);
+  font-size: clamp(30px, 4vw, 62px);
+  line-height: 1;
+  animation: preloader-spin 12s linear infinite;
+}
+.preloader-title {
+  position: relative;
+  display: grid;
+  max-width: 100%;
+  margin: 0;
+  font-family: "Tusker Grotesk", Impact, sans-serif;
+  font-size: clamp(78px, 20vw, 360px);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 0.78;
+}
+.preloader-title-base,
+.preloader-title-fill { grid-area: 1 / 1; }
+.preloader-title-base { color: rgba(245, 240, 232, 0.18); }
+.preloader-title-fill {
+  color: var(--cream);
+  clip-path: inset(100% 0 0 0);
+  animation: preloader-name-fill 7.15s linear forwards;
+}
+.preloader-caption {
+  margin-top: clamp(16px, 3vw, 42px);
+  font-family: "Neue Montreal", "Inter", Arial, sans-serif;
+  font-size: clamp(11px, 1.15vw, 18px);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--cream);
+  text-transform: uppercase;
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -400,7 +462,8 @@ img { display: block; }
   position: relative;
 }
 .about-work-canvas {
-  background: var(--ink);
+  --canvas-shade: 0;
+  background-color: rgba(10, 10, 15, var(--canvas-shade));
 }
 .about-heading {
   grid-column: 1;
@@ -589,8 +652,9 @@ img { display: block; }
   position: relative;
 }
 .cases-header {
-  font-size: clamp(16px, 1.2vw, 22px);
-  font-weight: 600;
+  font-family: "Neue Montreal", "Inter", Arial, sans-serif;
+  font-size: clamp(16px, 1.6vw, 31px);
+  font-weight: 700;
   letter-spacing: 0.04em;
   margin-bottom: clamp(70px, 7vw, 132px);
   display: flex;
@@ -829,6 +893,12 @@ img { display: block; }
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+@keyframes preloader-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes preloader-name-fill {
+  to { clip-path: inset(0 0 0 0); }
+}
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    RESPONSIVE â€” TABLET
@@ -899,7 +969,7 @@ img { display: block; }
 
   /* cases */
   .cases { padding: 38px 18px; }
-  .cases-header { font-size: 14px; margin-bottom: 24px; }
+  .cases-header { font-size: clamp(12px, 3.5vw, 15px); margin-bottom: 24px; }
   .cases-sun { font-size: 22px; }
   .case-item { grid-template-columns: 1fr !important; gap: 12px; margin-bottom: 32px; }
   .case-item.img-left .case-text { order: 0; text-align: left; }
@@ -981,6 +1051,7 @@ img { display: block; }
   .availability strong { font-size: clamp(150px, 15vw, 216px); }
   .hero-tagline { top: 50%; right: 2vw; max-width: clamp(400px, 40vw, 530px); }
   .hero-tagline h2 { font-size: clamp(18px, 1.8vw, 31px); }
+  .cases-header { font-size: clamp(18px, 1.8vw, 31px); }
 
   .awards { gap: 3vw; }
   .about { padding-inline: 42px; }
@@ -993,6 +1064,8 @@ img { display: block; }
 }
 
 @media (max-width: 760px) {
+  .preloader-title { font-size: clamp(78px, 21vw, 132px); }
+
   .hero { min-height: 0; padding: 68px 18px 34px; }
   .header-title { display: none; }
   .site-header { position: absolute; top: 0; gap: 0; justify-content: space-between; padding: 10px 18px 14px; }
@@ -1030,7 +1103,7 @@ img { display: block; }
   .about-arrow { width: 36px; height: 36px; }
 
   .cases { padding: 44px 18px 54px; }
-  .cases-header { font-size: 14px; margin-bottom: 28px; }
+  .cases-header { font-size: clamp(12px, 3.5vw, 15px); margin-bottom: 28px; }
   .cases-sun { font-size: 22px; }
   .case-item,
   .case-item.img-left,
