@@ -85,55 +85,83 @@ function scrollTo(id: string) {
 export default function Home() {
   const [hoveredExp, setHoveredExp] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [today, setToday] = useState<{ day: string; month: string } | null>(null);
+  const [heroHolding, setHeroHolding] = useState(false);
+  const [today, setToday] = useState({ day: "01", month: "jan" });
+  const [experienceYears, setExperienceYears] = useState(0);
   const heroRef = useRef<HTMLElement>(null);
   const heroTextRef = useRef<HTMLHeadingElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const aboutTextRef = useRef<HTMLParagraphElement>(null);
-  const aboutWorkCanvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const suns = document.querySelectorAll<HTMLElement>(".mini-sun");
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const isMobile = window.matchMedia("(max-width: 760px)").matches;
 
     gsap.registerPlugin(ScrollTrigger, SplitText);
-    const revealTargets = [
+    const revealTargets: {
+      section: HTMLElement | null;
+      text: HTMLElement | null;
+      stagger: number;
+      start?: string;
+      end?: string | (() => string);
+    }[] = [
       {
         section: heroRef.current,
         text: heroTextRef.current,
         stagger: 0.055,
+        start: "top top",
+        end: () => `+=${Math.round(window.innerHeight * 0.9)}`,
       },
       {
         section: aboutRef.current,
         text: aboutTextRef.current,
         stagger: 0.035,
+        start: "top 85%",
+        end: "top 45%",
       },
+      ...Array.from(
+        document.querySelectorAll<HTMLElement>(
+          ".cases-header, .case-text h3, .case-text p, .awards-heading, .awards-sub",
+        ),
+      ).map((text) => ({
+        section: text.closest<HTMLElement>(".case-item") ?? text,
+        text,
+        stagger: 0.025,
+        start: "top 88%",
+        end: "top 48%",
+      })),
     ];
-    const textReveals = prefersReducedMotion || isMobile
+    const textReveals = prefersReducedMotion
       ? []
-      : revealTargets.flatMap(({ section, text, stagger }) => {
+      : revealTargets.flatMap(({ section, text, stagger, start, end }) => {
           if (!section || !text) return [];
 
           const split = SplitText.create(text, { type: "words", aria: "auto" });
-          const tween = gsap.to(split.words, {
-            color: "#fff",
-            duration: 0.8,
-            ease: "none",
-            stagger,
-            scrollTrigger: {
-              trigger: section,
-              start: "top top",
-              end: () => `+=${Math.round(window.innerHeight * 0.9)}`,
-              scrub: true,
-              pin: false,
-              pinSpacing: false,
-              anticipatePin: 1,
-              invalidateOnRefresh: true,
+          const tween = gsap.fromTo(
+            split.words,
+            { color: "rgba(245, 240, 232, 0.16)" },
+            {
+              color: "#f5f0e8",
+              duration: 1,
+              ease: "none",
+              stagger,
+              scrollTrigger: {
+                trigger: section,
+                start: start ?? "top 85%",
+                end: end ?? "top 45%",
+                scrub: true,
+                pin: section === heroRef.current ? section : false,
+                pinSpacing: section === heroRef.current,
+                onToggle: (self) => {
+                  if (section === heroRef.current) setHeroHolding(self.isActive);
+                },
+                anticipatePin: 1,
+                invalidateOnRefresh: true,
+              },
             },
-          });
+          );
 
           return [{ split, tween }];
         });
@@ -156,29 +184,64 @@ export default function Home() {
         const isScrolled = y > 10;
         return wasScrolled === isScrolled ? wasScrolled : isScrolled;
       });
-
-      const canvas = aboutWorkCanvasRef.current;
-      if (canvas) {
-        const { top } = canvas.getBoundingClientRect();
-        const progress = Math.min(
-          1,
-          Math.max(0, (window.innerHeight * 0.85 - top) / (window.innerHeight * 0.45)),
-        );
-        canvas.style.backgroundColor = `rgba(10, 10, 15, ${progress * 0.55})`;
-      }
     };
 
     const handleScroll = () => {
       if (frameId === null) frameId = window.requestAnimationFrame(updateScrollState);
     };
 
-    const dateFrameId = window.requestAnimationFrame(() => {
-      const now = new Date();
+    const now = new Date();
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+    const elapsedDays = Math.floor((now.getTime() - yearStart.getTime()) / 86_400_000);
+    const months = [
+      "jan", "feb", "mar", "apr", "may", "jun",
+      "jul", "aug", "sep", "oct", "nov", "dec",
+    ];
+    let dateFrameId: number | null = null;
+    if (prefersReducedMotion || elapsedDays === 0) {
       setToday({
-        day: now.toLocaleDateString("en-US", { day: "2-digit" }),
-        month: now.toLocaleDateString("en-US", { month: "short" }),
+        day: String(now.getDate()).padStart(2, "0"),
+        month: months[now.getMonth()],
       });
-    });
+    } else {
+      let startTime: number | null = null;
+      const animateDate = (timestamp: number) => {
+        if (startTime === null) startTime = timestamp;
+        const progress = Math.min(1, (timestamp - startTime) / 1200);
+        const easedProgress = 1 - (1 - progress) ** 3;
+        const visibleDate = new Date(
+          yearStart.getTime() + Math.floor(elapsedDays * easedProgress) * 86_400_000,
+        );
+        setToday({
+          day: String(visibleDate.getDate()).padStart(2, "0"),
+          month: months[visibleDate.getMonth()],
+        });
+        if (progress < 1) dateFrameId = window.requestAnimationFrame(animateDate);
+      };
+      dateFrameId = window.requestAnimationFrame(animateDate);
+    }
+
+    const awardsBadge = document.querySelector<HTMLElement>(".awards-badge");
+    const experienceCounter = { value: 0 };
+    let experienceTween: gsap.core.Tween | null = null;
+    const experienceTrigger = awardsBadge && !prefersReducedMotion
+      ? ScrollTrigger.create({
+          trigger: awardsBadge,
+          start: "top 85%",
+          once: true,
+          onEnter: () => {
+            experienceTween = gsap.to(experienceCounter, {
+              value: 2,
+              duration: 1.1,
+              ease: "power2.out",
+              onUpdate: () => setExperienceYears(Math.floor(experienceCounter.value)),
+              onComplete: () => setExperienceYears(2),
+            });
+          },
+        })
+      : null;
+    if (prefersReducedMotion) setExperienceYears(2);
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleScroll);
     updateScrollState();
@@ -187,7 +250,9 @@ export default function Home() {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
       if (frameId !== null) window.cancelAnimationFrame(frameId);
-      window.cancelAnimationFrame(dateFrameId);
+      if (dateFrameId !== null) window.cancelAnimationFrame(dateFrameId);
+      experienceTrigger?.kill();
+      experienceTween?.kill();
       textReveals.forEach(({ split, tween }) => {
         tween.scrollTrigger?.kill();
         tween.kill();
@@ -199,7 +264,7 @@ export default function Home() {
   return (
     <main>
       <div className="page-bg" aria-hidden="true" />
-      <header className={`site-header${scrolled ? " scrolled" : ""}`}>
+      <header className={`site-header${scrolled ? " scrolled" : ""}${heroHolding ? " hero-holding" : ""}`}>
         <a className="wordmark" href="#top" aria-label="Home">
           Ranjula.
         </a>
@@ -230,9 +295,9 @@ export default function Home() {
 
           <div className="availability" aria-label="Available for work">
             <span className="mini-sun absolute -top-2 -left-12">✺</span>
-            <strong>{today?.day ?? "--"}</strong>
+            <strong>{today.day}</strong>
             <span>
-              <b>{today?.month ?? "---"}</b>
+              <b>{today.month}</b>
               <br />
               <span className="availability-text">available</span>
               <br />
@@ -264,7 +329,7 @@ export default function Home() {
 
       </section>
 
-      <div className="about-work-canvas" ref={aboutWorkCanvasRef}>
+      <div className="about-work-canvas">
         {/* ═══════════ ABOUT ═══════════ */}
         <section
           className="about"
@@ -320,7 +385,7 @@ export default function Home() {
           {cases.map((c, i) => (
             <article
               key={c.name}
-              className={`case-item ${i % 2 === 0 ? "img-right" : "img-left"}`}
+              className={`case-item ${i === 1 ? "img-left" : "img-right"}${i === 2 ? " case-item-gawanna" : ""}`}
             >
               <div className="case-text">
                 <h3>{c.name}</h3>
@@ -368,7 +433,7 @@ export default function Home() {
           <p className="awards-sub">&amp; people who trust me.</p>
           <div className="awards-badge">
             <span className="mini-sun">✺</span>
-            <span className="badge-eyes">+2</span>
+            <span className="badge-eyes">+{experienceYears}</span>
             <span className="badge-label">
               <b>Yrs</b>
               <br />
