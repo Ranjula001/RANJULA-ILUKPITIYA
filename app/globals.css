@@ -517,7 +517,7 @@ img { display: block; }
   gap: 12px;
   justify-content: flex-start;
   font-size: clamp(14px, 1.6vw, 22px);
-  font-weight: 600;
+  font-weight: 400;
 }
 .about-note small {
   font-family: "Migra", Georgia, serif;
@@ -603,8 +603,9 @@ img { display: block; }
   display: grid;
   grid-template-columns: 1.1fr 1fr 1.1fr;
   gap: 20px;
+  font-family: "Neue Montreal", "Inter", Arial, sans-serif;
   font-size: clamp(13px, 1vw, 18px);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.02em;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--line);
@@ -654,7 +655,7 @@ img { display: block; }
 .cases-header {
   font-family: "Neue Montreal", "Inter", Arial, sans-serif;
   font-size: clamp(16px, 1.6vw, 31px);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.04em;
   margin-bottom: clamp(70px, 7vw, 132px);
   display: flex;
