@@ -148,6 +148,9 @@ export default function Home() {
   const [heroIntroComplete, setHeroIntroComplete] = useState(false);
   const [today, setToday] = useState({ day: "01", month: "jan" });
   const [experienceYears, setExperienceYears] = useState(0);
+  const experiencePressRef = useRef<{
+    pointerId: number;
+  } | null>(null);
   const heroRef = useRef<HTMLElement>(null);
   const heroTextRef = useRef<HTMLHeadingElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
@@ -651,17 +654,42 @@ export default function Home() {
               key={i}
               className={`awards-row${hoveredExp === i ? " is-hovered" : ""}`}
               onPointerEnter={(event) => {
-                if (event.pointerType !== "mouse") return;
+                if (event.pointerType === "touch") return;
                 setHoveredExp(i);
                 setPreviewExp(i);
                 positionExperiencePreview(event);
               }}
               onPointerMove={(event) => {
-                if (event.pointerType === "mouse")
+                if (
+                  event.pointerType !== "touch" ||
+                  experiencePressRef.current?.pointerId === event.pointerId
+                )
                   positionExperiencePreview(event);
               }}
+              onPointerDown={(event) => {
+                if (event.pointerType !== "touch" || !event.isPrimary) return;
+                experiencePressRef.current = { pointerId: event.pointerId };
+                setHoveredExp(i);
+                setPreviewExp(i);
+                positionExperiencePreview(event);
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }}
+              onPointerUp={(event) => {
+                if (experiencePressRef.current?.pointerId !== event.pointerId)
+                  return;
+                experiencePressRef.current = null;
+                setHoveredExp(null);
+                if (event.currentTarget.hasPointerCapture(event.pointerId))
+                  event.currentTarget.releasePointerCapture(event.pointerId);
+              }}
+              onPointerCancel={(event) => {
+                if (experiencePressRef.current?.pointerId !== event.pointerId)
+                  return;
+                experiencePressRef.current = null;
+                setHoveredExp(null);
+              }}
               onPointerLeave={(event) => {
-                if (event.pointerType === "mouse") setHoveredExp(null);
+                if (event.pointerType !== "touch") setHoveredExp(null);
               }}
             >
               {hoveredExp === i ? (
