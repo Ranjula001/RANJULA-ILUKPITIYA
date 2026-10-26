@@ -676,6 +676,53 @@ img { display: block; }
   font-style: italic;
 }
 
+.experience-preview {
+  --preview-angle: -5deg;
+  position: fixed;
+  z-index: 90;
+  top: 0;
+  left: 0;
+  width: clamp(180px, 20vw, 320px);
+  aspect-ratio: 4 / 5;
+  padding: 9px;
+  border: 1px solid rgba(245, 240, 232, 0.72);
+  background: var(--cream);
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.42);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(var(--preview-x, -1000px), var(--preview-y, -1000px), 0)
+    rotate(var(--preview-angle)) scale(0.9);
+  transform-origin: center;
+  transition:
+    opacity 0.25s ease,
+    transform 0.36s cubic-bezier(0.2, 0.8, 0.2, 1),
+    visibility 0s linear 0.36s;
+  will-change: transform, opacity;
+}
+.experience-preview[data-experience="0"] { --preview-angle: -6deg; }
+.experience-preview[data-experience="1"] { --preview-angle: 5deg; }
+.experience-preview[data-experience="2"] { --preview-angle: -4deg; }
+.experience-preview.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(var(--preview-x, -1000px), var(--preview-y, -1000px), 0)
+    rotate(var(--preview-angle)) scale(1);
+  transition-delay: 0s;
+}
+.experience-preview-image {
+  position: absolute;
+  inset: 9px;
+  overflow: hidden;
+  background: #e9e5dc;
+  animation: experience-preview-image-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.experience-preview-image img { padding: 5px; }
+@keyframes experience-preview-image-in {
+  from { opacity: 0; transform: scale(1.035); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 /* award row hover â†’ marquee */
 .awards-marquee {
   grid-column: 1 / -1;

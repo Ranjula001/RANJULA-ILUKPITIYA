@@ -14,16 +14,19 @@ const experiences = [
     role: "FULLSTACK DEVELOPER",
     company: "Freelance",
     duration: "2025 — Present",
+    previewImage: "/profile.jpeg",
   },
   {
     role: "UI/UX DESIGNER & FRONTEND ENGINEER",
     company: "KynoLabs",
     duration: "2025 · 4 Month Contract",
+    previewImage: "/KynoLabs.jpg",
   },
   {
     role: "FRONTEND DEVELOPER",
     company: "CodeZilla",
     duration: "2024–2025 · 1 Year Internship",
+    previewImage: "/codezilla.png",
   },
 ];
 
@@ -139,6 +142,7 @@ function PortfolioPreloader() {
 
 export default function Home() {
   const [hoveredExp, setHoveredExp] = useState<number | null>(null);
+  const [previewExp, setPreviewExp] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [heroHolding, setHeroHolding] = useState(false);
   const [heroIntroComplete, setHeroIntroComplete] = useState(false);
@@ -149,6 +153,7 @@ export default function Home() {
   const aboutRef = useRef<HTMLElement>(null);
   const aboutTextRef = useRef<HTMLParagraphElement>(null);
   const aboutWorkCanvasRef = useRef<HTMLDivElement>(null);
+  const experiencePreviewRef = useRef<HTMLDivElement>(null);
   const portraitDragRef = useRef<{
     pointerId: number;
     startX: number;
@@ -398,6 +403,30 @@ export default function Home() {
       event.currentTarget.releasePointerCapture(event.pointerId);
   };
 
+  const positionExperiencePreview = (
+    event: ReactPointerEvent<HTMLDivElement>,
+  ) => {
+    const preview = experiencePreviewRef.current;
+    if (!preview) return;
+
+    const margin = 20;
+    const gap = 24;
+    const width = preview.offsetWidth || 280;
+    const height = preview.offsetHeight || 350;
+    let x = event.clientX + gap;
+    let y = event.clientY + gap;
+
+    if (x + width > window.innerWidth - margin)
+      x = event.clientX - width - gap;
+    if (y + height > window.innerHeight - margin)
+      y = event.clientY - height - gap;
+
+    x = Math.max(margin, Math.min(x, window.innerWidth - width - margin));
+    y = Math.max(margin, Math.min(y, window.innerHeight - height - margin));
+    preview.style.setProperty("--preview-x", `${x}px`);
+    preview.style.setProperty("--preview-y", `${y}px`);
+  };
+
   return (
     <main>
       <PortfolioPreloader />
@@ -621,8 +650,19 @@ export default function Home() {
             <div
               key={i}
               className={`awards-row${hoveredExp === i ? " is-hovered" : ""}`}
-              onMouseEnter={() => setHoveredExp(i)}
-              onMouseLeave={() => setHoveredExp(null)}
+              onPointerEnter={(event) => {
+                if (event.pointerType !== "mouse") return;
+                setHoveredExp(i);
+                setPreviewExp(i);
+                positionExperiencePreview(event);
+              }}
+              onPointerMove={(event) => {
+                if (event.pointerType === "mouse")
+                  positionExperiencePreview(event);
+              }}
+              onPointerLeave={(event) => {
+                if (event.pointerType === "mouse") setHoveredExp(null);
+              }}
             >
               {hoveredExp === i ? (
                 <div className="awards-marquee">
@@ -639,6 +679,33 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <div
+        ref={experiencePreviewRef}
+        className={`experience-preview${hoveredExp !== null ? " is-visible" : ""}`}
+        data-experience={previewExp ?? undefined}
+        onTransitionEnd={(event) => {
+          if (
+            event.target === event.currentTarget &&
+            event.propertyName === "opacity" &&
+            hoveredExp === null
+          )
+            setPreviewExp(null);
+        }}
+        aria-hidden="true"
+      >
+        {previewExp !== null && (
+          <div key={previewExp} className="experience-preview-image">
+            <Image
+              src={experiences[previewExp].previewImage}
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 220px, 320px"
+              style={{ objectFit: "contain" }}
+            />
+          </div>
+        )}
+      </div>
 
       {/* ═══════════ FEATURED IN ═══════════ */}
       <section className="featured-in" aria-label="Featured in publications">
