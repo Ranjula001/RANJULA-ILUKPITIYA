@@ -1,0 +1,387 @@
+/* ═══════════════════════════════════════════════════════
+   ATMOSPHERE — drifting light, live grain, pointer glow, status rail
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --hum: 0;
+  --signal: #5ef25a; /* the dot in the M99 Labs mark */
+  --ember: #c9744a;
+  --dusk: #4a5d8a;
+}
+
+/* Soft lights that drift behind the page and swell with the hum. */
+.ambient-light {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ambient-orb {
+  position: absolute;
+  width: 62vmax;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  opacity: calc(0.38 + var(--hum) * 0.5);
+  scale: calc(1 + var(--hum) * 0.2);
+  will-change: transform;
+}
+.orb-a {
+  left: -22vmax;
+  top: -18vmax;
+  background: radial-gradient(closest-side, rgba(167, 137, 114, 0.5), transparent);
+  animation: orb-a 46s ease-in-out infinite alternate;
+}
+.orb-b {
+  right: -26vmax;
+  top: 22vh;
+  background: radial-gradient(closest-side, rgba(201, 116, 74, 0.3), transparent);
+  animation: orb-b 58s ease-in-out infinite alternate;
+}
+.orb-c {
+  left: 18vw;
+  bottom: -34vmax;
+  background: radial-gradient(closest-side, rgba(74, 93, 138, 0.42), transparent);
+  animation: orb-c 64s ease-in-out infinite alternate;
+}
+@keyframes orb-a { to { transform: translate3d(26vw, 22vh, 0); } }
+@keyframes orb-b { to { transform: translate3d(-30vw, -16vh, 0); } }
+@keyframes orb-c { to { transform: translate3d(22vw, -28vh, 0); } }
+
+/* Film grain over everything, re-seated a few times a second. */
+.ambient-grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 96;
+  pointer-events: none;
+  opacity: 0.11;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  animation: grain-shift 0.9s steps(1) infinite;
+}
+@keyframes grain-shift {
+  0%   { transform: translate3d(0, 0, 0); }
+  12%  { transform: translate3d(-6%, 4%, 0); }
+  25%  { transform: translate3d(5%, -9%, 0); }
+  37%  { transform: translate3d(-11%, -3%, 0); }
+  50%  { transform: translate3d(8%, 7%, 0); }
+  62%  { transform: translate3d(-3%, 11%, 0); }
+  75%  { transform: translate3d(10%, -5%, 0); }
+  87%  { transform: translate3d(-8%, -10%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* A warm pool of light that trails the pointer. */
+.ambient-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 95;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.ambient-glow::before {
+  content: "";
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  margin: -320px 0 0 -320px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(245, 226, 200, 0.16), transparent);
+  mix-blend-mode: screen;
+}
+.ambient-glow.is-active { opacity: 1; }
+@media not ((hover: hover) and (pointer: fine)) {
+  .ambient-glow { display: none; }
+}
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 101;
+  height: 2px;
+  background: var(--cream);
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+/* Status rail */
+.rail {
+  position: fixed;
+  left: clamp(14px, 1.6vw, 28px);
+  right: clamp(14px, 1.6vw, 28px);
+  bottom: clamp(12px, 1.4vw, 22px);
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+.rail-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(245, 240, 232, 0.2);
+  border-radius: 999px;
+  background: rgba(10, 10, 15, 0.55);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  color: var(--cream);
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  pointer-events: auto;
+}
+.sound-toggle {
+  border: 1px solid rgba(245, 240, 232, 0.2);
+  transition: border-color 0.3s, background 0.3s;
+}
+.sound-toggle.is-on { border-color: rgba(245, 240, 232, 0.6); }
+.sound-toggle:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .sound-toggle:hover { background: rgba(245, 240, 232, 0.12); }
+}
+.sound-bars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 16px;
+}
+.sound-bars i {
+  width: 2px;
+  height: 100%;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.45;
+  transform: scaleY(0.14);
+  transition: transform 0.09s linear, opacity 0.3s;
+}
+.sound-toggle.is-on .sound-bars i { opacity: 1; }
+.rail-meta { color: var(--cream-dim); }
+.rail-meta time { color: var(--cream); }
+.rail-percent {
+  padding-left: 10px;
+  border-left: 1px solid var(--line);
+}
+.rail-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 0 0 rgba(94, 242, 90, 0.6);
+  animation: live-pulse 2.4s ease-out infinite;
+}
+@keyframes live-pulse {
+  70%, 100% { box-shadow: 0 0 0 9px rgba(94, 242, 90, 0); }
+}
+
+/* Keep the rail clear of the last lines of the page. */
+.contact { padding-bottom: 96px; }
+
+/* ═══════════════════════════════════════════════════════
+   LATEST CASE TAG
+   ═══════════════════════════════════════════════════════ */
+.case-latest {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 12px;
+  font-family: "Migra", Georgia, serif;
+  font-style: italic;
+  font-size: clamp(13px, 1.2vw, 18px);
+  color: var(--cream);
+}
+.case-latest .rail-live { flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════
+   STUDIO — M99 Labs
+   ═══════════════════════════════════════════════════════ */
+.studio {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: clamp(40px, 6vw, 120px);
+  padding: clamp(120px, 10vw, 200px) clamp(42px, 13.5vw, 260px);
+  scroll-margin-top: 72px;
+}
+.studio-orbit {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 520px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+/* A dark lens so the mark reads against the busy backdrop. */
+.studio-orbit::before {
+  content: "";
+  position: absolute;
+  inset: 1%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(10, 10, 15, 0.86) 55%, rgba(10, 10, 15, 0.62));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.studio-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: preloader-spin 48s linear infinite;
+}
+.studio-ring text {
+  fill: var(--cream);
+  font-family: "Neue Montreal", Arial, sans-serif;
+  font-size: 15.5px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+}
+.studio-ring circle {
+  fill: none;
+  stroke: rgba(245, 240, 232, 0.18);
+  stroke-width: 0.5;
+}
+.studio-satellite {
+  position: absolute;
+  inset: 14%;
+  border: 1px dashed rgba(245, 240, 232, 0.22);
+  border-radius: 50%;
+  animation: preloader-spin 22s linear infinite reverse;
+}
+.studio-satellite::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -6px;
+  width: 11px;
+  height: 11px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 22px 3px rgba(94, 242, 90, calc(0.4 + var(--hum) * 2));
+}
+/* The logo file has wide margins, so show only the mark. */
+.studio-logo {
+  position: relative;
+  width: 54%;
+  aspect-ratio: 100 / 20;
+  overflow: hidden;
+}
+.studio-logo > div {
+  position: absolute;
+  top: 0;
+  left: -35.5%;
+  width: 171%;
+  aspect-ratio: 2 / 1;
+  margin-top: -29.2%;
+}
+.studio-kicker {
+  font-family: "Migra", Georgia, serif;
+  font-size: clamp(18px, 1.8vw, 30px);
+  margin-bottom: 6px;
+}
+.studio-copy h2 {
+  font-family: "Tusker Grotesk", Impact, sans-serif;
+  font-weight: 600;
+  font-size: clamp(84px, 9.5vw, 190px);
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+  margin-bottom: clamp(18px, 2vw, 34px);
+}
+.studio-lede {
+  max-width: 34em;
+  font-size: clamp(15px, 1.25vw, 22px);
+  line-height: 1.42;
+  letter-spacing: -0.02em;
+  color: var(--cream-dim);
+  margin-bottom: clamp(26px, 3vw, 48px);
+}
+.studio-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(18px, 2vw, 40px);
+  margin-bottom: clamp(28px, 3vw, 48px);
+  border-top: 1px solid var(--line);
+}
+.studio-list li {
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: clamp(13px, 1.05vw, 18px);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: padding-left 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .studio-list li:hover { padding-left: 12px; }
+}
+.studio .outline-button { font-size: clamp(16px, 1.35vw, 26px); }
+
+/* ═══════════════════════════════════════════════════════
+   STACK MARQUEE — outlined, runs against the one above it
+   ═══════════════════════════════════════════════════════ */
+.stack-label { margin-top: clamp(28px, 4vw, 64px); }
+.stack-marquee { animation: drift 48s linear infinite reverse; }
+.stack-marquee span {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(245, 240, 232, 0.7);
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .studio { padding-inline: 6vw; }
+}
+@media (max-width: 760px) {
+  .rail-chip { height: 34px; padding: 0 12px; font-size: 12px; }
+  .rail-meta > span:nth-child(2),
+  .rail-percent { display: none; }
+  .contact { padding-bottom: 84px; }
+
+  .studio {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 34px;
+    padding: 56px 18px;
+  }
+  .studio-orbit { width: min(78vw, 320px); }
+  .studio-ring text { font-size: 17px; }
+  .studio-copy h2 { font-size: clamp(64px, 21vw, 110px); }
+  .studio-lede { font-size: 14px; line-height: 1.55; }
+  .studio-list li { font-size: 12px; padding: 11px 0; }
+  .studio .outline-button { font-size: 14px; }
+}
+@media (max-width: 380px) {
+  .studio { padding-inline: 16px; }
+  .studio-list { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-grain,
+  .ambient-orb,
+  .studio-ring,
+  .studio-satellite,
+  .rail-live { animation: none !important; }
+}
+
+/* M99 preview card: the white mark needs a dark ground. */
+.experience-preview[data-experience="0"] .experience-preview-image { background: var(--ink); }
+.experience-preview[data-experience="3"] { --preview-angle: 4deg; }

@@ -6,157 +6,177 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useRef, useState } from "react";
+import Atmosphere from "./components/Atmosphere";
+import Constellation from "./components/Constellation";
+import Interactions from "./components/Interactions";
+import Marquee from "./components/Marquee";
 
-/* ── data ────────────────────────────────────────────── */
+/* ── content ─────────────────────────────────────────────
+   Everything on the page lives here, so updating the site
+   means editing data, not markup. Keep it in line with the CV. */
 
-const experiences = [
-  {
-    role: "FULLSTACK DEVELOPER",
-    company: "Freelance",
-    duration: "2025 — Present",
-    previewImage: "/profile.jpeg",
-  },
-  {
-    role: "UI/UX DESIGNER & FRONTEND ENGINEER",
-    company: "KynoLabs",
-    duration: "2025 · 4 Month Contract",
-    previewImage: "/KynoLabs.jpg",
-  },
-  {
-    role: "FRONTEND DEVELOPER",
-    company: "CodeZilla",
-    duration: "2024–2025 · 1 Year Internship",
-    previewImage: "/codezilla.png",
-  },
+const EMAIL = "ranjulailukpitiya@gmail.com";
+const CV_URL = "/Ranjula_Ilukpitiya_CV.pdf";
+
+const links = {
+  github: "https://github.com/Ranjula001",
+  linkedin: "https://www.linkedin.com/in/ranjula-ilukpitiya-777win999",
+  instagram: "https://instagram.com/ranjula_ilukpitiya",
+  m99: "https://www.m99labs.com/",
+};
+
+const facts = [
+  { value: 1.5, decimals: 1, label: "years shipping production code" },
+  { value: 4, decimals: 0, label: "live products on the web" },
+  { value: 2, decimals: 0, label: "client sites built through M99 Labs" },
 ];
 
-const cases: {
+const stackMarquee = ["Next.js", "React", "TypeScript", "NestJS", "Supabase", "PostgreSQL", "Tailwind CSS", "GSAP", "Figma", "Node.js"];
+const roleMarquee = ["Full-stack engineering", "UI/UX design", "Design to code", "Client websites", "Dashboards", "SaaS"];
+const contactMarquee = ["Open to work", "Full-time roles", "Freelance projects", "Let's talk"];
+
+type Project = {
   name: string;
-  subtitle: string;
+  kind: string;
+  summary: string;
+  stack: string[];
   image: string;
-  fit: "contain" | "cover";
-  href?: string;
-}[] = [
+  fit?: "cover" | "contain";
+  live?: string;
+  code?: string;
+};
+
+const projects: Project[] = [
   {
-    name: "PRIME SENTINEL",
-    subtitle: "UI/UX DESIGN, DEVELOPMENT",
+    name: "BIMBARA Holiday Home",
+    kind: "Management dashboard · Family business",
+    summary:
+      "Replaced handwritten booking records for a holiday home in Anuradhapura with a live dashboard: secure login, bookings, guests and payments, charts and rule-based business insights, built for phone and tablet.",
+    stack: ["Next.js", "Supabase", "Netlify"],
+    image: "/assets/BBimbara holiday home.png",
+    fit: "contain",
+    live: "https://bimbaradashboardprod.netlify.app",
+    code: "https://github.com/Ranjula001/Dashboard-Bimbara-Holiday-Home",
+  },
+  {
+    name: "SERENGO Tours",
+    kind: "Travel agency website",
+    summary:
+      "An interactive, boarding-pass-inspired site for a Colombo travel company: draggable elements, video backgrounds, package, stay and add-on sections, a travel blog and WhatsApp enquiries.",
+    stack: ["Next.js", "TypeScript", "Cloudinary", "Vercel"],
+    image: "/assets/Serengo.png",
+    live: "https://serengo-tours.vercel.app/",
+    code: "https://github.com/Ranjula001/SERENGO",
+  },
+  {
+    name: "Prime Sentinel",
+    kind: "Client website · Redesign",
+    summary:
+      "A full redesign for a California insurance brokerage: new UX/UI, product pages, quote and consultation lead capture, and a rule-based chat assistant, rebuilt from scratch.",
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
     image: "/assets/PrimeSentinel.png",
-    fit: "contain",
-    href: "https://prime-sentinel.vercel.app/",
+    live: "https://prime-sentinel.vercel.app/",
+    code: "https://github.com/Ranjula001/Prime-Sentinel",
   },
   {
-    name: "ABA CEYLON TOURS",
-    subtitle: "UX/UI DESIGN, DEVELOPMENT",
+    name: "Aba Ceylon Tours",
+    kind: "Client website · via M99 Labs",
+    summary:
+      "UI/UX and front end for a Sri Lankan tour company, connected to Supabase: custom trip planning, 1–15 day packages with Google Maps routes, stay and fleet pages, and user sign-in.",
+    stack: ["Next.js", "TypeScript", "Supabase", "Cloudinary"],
     image: "/assets/AbaCeylon.png",
-    fit: "contain",
-    href: "https://www.abaceylontours.com/",
+    live: "https://www.abaceylontours.com/",
+    code: "https://github.com/Aba-Ceylon/frontend",
   },
   {
-    name: "GAWANNA.LK",
-    subtitle: "PRODUCT DESIGN",
+    name: "Gawanna.lk",
+    kind: "Product design",
+    summary: "Product design work for Gawanna.lk.",
+    stack: ["Figma", "UI/UX"],
     image: "/assets/Gawanna.png",
     fit: "contain",
   },
 ];
 
-const skillPills = [
-  "UX/UI DESIGN",
-  "FRONTEND DEVELOPMENT",
-  "NEXT.JS",
-  "AI & ML",
-  "WEB/MOBILE DEVELOPMENT",
-  "NEW BUSINESS",
-  "STARTUPS",
-  "COFFEE",
+const skills = [
+  {
+    group: "Front end",
+    items: ["React", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "GSAP"],
+  },
+  {
+    group: "Back end",
+    items: ["Node.js", "NestJS", "REST APIs", "Swagger / OpenAPI"],
+  },
+  {
+    group: "Data",
+    items: ["PostgreSQL", "Supabase", "MongoDB", "SAP HANA"],
+  },
+  {
+    group: "Design & tools",
+    items: ["Figma", "Git & GitHub", "Vercel", "Netlify"],
+  },
 ];
 
-const featuredSites = [
-  "M99LABS",
-  "GITHUB",
-  "BEHANCE",
-  "DRIBBBLE",
-  "PRODUCT HUNT",
-  "AWWWARDS",
-  "CSS DESIGN AWARDS",
-  "FIGMA COMMUNITY",
+const experience: { period: string; role: string; org: string; image?: string; note: string }[] = [
+  {
+    period: "Aug 2026 — Now",
+    role: "SAP DB Analyst (Graduate Engineer Trainee)",
+    org: "HCLTech Lanka",
+    note: "SAP HANA administration, backups, upgrades and production support.",
+  },
+  {
+    period: "Now",
+    role: "Co-founder & Software Engineer",
+    org: "M99 Labs",
+    image: "/assets/M99Labs_Logo.png",
+    note: "A software studio building websites and products for clients.",
+  },
+  {
+    period: "Jul — Dec 2025",
+    role: "Contract Software Engineer (Full-Stack)",
+    org: "Kyno Labs",
+    image: "/KynoLabs.jpg",
+    note: "NestJS back end and React / Next.js front end for a SaaS product.",
+  },
+  {
+    period: "Jan — Dec 2024",
+    role: "Front-End Developer (Intern)",
+    org: "Codezilla",
+    image: "/codezilla.png",
+    note: "Web apps and admin dashboards in React, TypeScript and Ant Design.",
+  },
+  {
+    period: "2021 — 2025",
+    role: "BSc (Hons) in Information Technology",
+    org: "SLIIT",
+    note: "Sri Lanka Institute of Information Technology.",
+  },
 ];
 
-/* ── helpers ─────────────────────────────────────────── */
+/* ── page ────────────────────────────────────────────── */
 
-function scrollTo(id: string) {
-  document.querySelector(id)?.scrollIntoView({ behavior: "smooth" });
-}
-
-function PortfolioPreloader() {
-  const [visible, setVisible] = useState(true);
-  const [leaving, setLeaving] = useState(false);
-
-  useEffect(() => {
-    const exitDuration = 850;
-    const totalDuration = 8000;
-    const leaveTimer = window.setTimeout(
-      () => setLeaving(true),
-      totalDuration - exitDuration,
-    );
-    const removeTimer = window.setTimeout(
-      () => setVisible(false),
-      totalDuration,
-    );
-
-    return () => {
-      window.clearTimeout(leaveTimer);
-      window.clearTimeout(removeTimer);
-    };
-  }, []);
-
-  if (!visible) return null;
-
+function Chars({ text }: { text: string }) {
   return (
-    <div
-      className={`portfolio-preloader${leaving ? " is-leaving" : ""}`}
-      role="status"
-      aria-live="polite"
-      aria-label="Loading portfolio"
-    >
-      <div className="preloader-center">
-        <span className="preloader-sun" aria-hidden="true">
-          ✺
-        </span>
-        <p className="preloader-title" aria-label="Ranjula">
-          <span className="preloader-title-base" aria-hidden="true">
-            RANJULA
+    <>
+      {text.split("").map((ch, i) =>
+        ch === " " ? (
+          <span className="char-space" key={i}> </span>
+        ) : (
+          <span className="char" key={i}>
+            {ch}
           </span>
-          <span className="preloader-title-fill" aria-hidden="true">
-            RANJULA
-          </span>
-        </p>
-        <p className="preloader-caption">
-          UI/UX DESIGNER &amp; FRONTEND DEVELOPER
-        </p>
-      </div>
-    </div>
+        ),
+      )}
+    </>
   );
 }
 
-/* ── component ───────────────────────────────────────── */
-
 export default function Home() {
-  const [hoveredExp, setHoveredExp] = useState<number | null>(null);
-  const [previewExp, setPreviewExp] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [heroHolding, setHeroHolding] = useState(false);
-  const [heroIntroComplete, setHeroIntroComplete] = useState(false);
-  const [today, setToday] = useState({ day: "01", month: "jan" });
-  const [experienceYears, setExperienceYears] = useState(0);
-  const experiencePressRef = useRef<{
-    pointerId: number;
-  } | null>(null);
-  const heroRef = useRef<HTMLElement>(null);
-  const heroTextRef = useRef<HTMLHeadingElement>(null);
-  const aboutRef = useRef<HTMLElement>(null);
-  const aboutTextRef = useRef<HTMLParagraphElement>(null);
-  const aboutWorkCanvasRef = useRef<HTMLDivElement>(null);
-  const experiencePreviewRef = useRef<HTMLDivElement>(null);
+  const [preview, setPreview] = useState<number | null>(null);
+  const rootRef = useRef<HTMLElement>(null);
+  const bioRef = useRef<HTMLParagraphElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
   const portraitDragRef = useRef<{
     pointerId: number;
     startX: number;
@@ -164,654 +184,501 @@ export default function Home() {
   } | null>(null);
 
   useEffect(() => {
-    const suns = document.querySelectorAll<HTMLElement>(".mini-sun");
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     gsap.registerPlugin(ScrollTrigger, SplitText);
-    const revealTargets: {
-      section: HTMLElement | null;
-      text: HTMLElement | null;
-      stagger: number;
-      start?: string;
-      end?: string | (() => string);
-    }[] = [
-      {
-        section: heroRef.current,
-        text: heroTextRef.current,
-        stagger: 0.055,
-        start: "top top",
-        end: () => `+=${Math.round(window.innerHeight * 0.9)}`,
-      },
-      {
-        section: aboutRef.current,
-        text: aboutTextRef.current,
-        stagger: 0.035,
-        start: "top 85%",
-        end: "top 45%",
-      },
-      ...Array.from(
-        document.querySelectorAll<HTMLElement>(
-          ".cases-header, .case-text h3, .case-text p, .awards-heading, .awards-sub",
-        ),
-      ).map((text) => ({
-        section: text.closest<HTMLElement>(".case-item") ?? text,
-        text,
-        stagger: 0.025,
-        start: "top 88%",
-        end: "top 48%",
-      })),
-    ];
-    const textReveals = prefersReducedMotion
-      ? []
-      : revealTargets.flatMap(({ section, text, stagger, start, end }) => {
-          if (!section || !text) return [];
 
-          const split = SplitText.create(text, { type: "words", aria: "auto" });
-          const tween = gsap.fromTo(
-            split.words,
-            { color: "rgba(245, 240, 232, 0.16)" },
-            {
-              color: "#f5f0e8",
-              duration: 1,
-              ease: "none",
-              stagger,
-              scrollTrigger: {
-                trigger: section,
-                start: start ?? "top 85%",
-                end: end ?? "top 45%",
-                scrub: true,
-                pin: section === heroRef.current ? section : false,
-                pinSpacing: section === heroRef.current,
-                onToggle: (self) => {
-                  if (section === heroRef.current)
-                    setHeroHolding(self.isActive);
-                },
-                onUpdate: (self) => {
-                  if (section === heroRef.current)
-                    setHeroIntroComplete(self.progress >= 0.999);
-                },
-                anticipatePin: 1,
-                invalidateOnRefresh: true,
-              },
-            },
-          );
-
-          return [{ split, tween }];
+    const ctx = gsap.context(() => {
+      // Count the hero numbers up once they are on screen.
+      gsap.utils.toArray<HTMLElement>("[data-count]").forEach((el) => {
+        const end = Number(el.dataset.count);
+        const decimals = Number(el.dataset.decimals ?? 0);
+        const fmt = (v: number) => (decimals ? v.toFixed(decimals) : String(Math.round(v)).padStart(2, "0"));
+        if (reduce) {
+          el.textContent = fmt(end);
+          return;
+        }
+        const n = { v: 0 };
+        el.textContent = fmt(0);
+        gsap.to(n, {
+          v: end,
+          duration: 1.8,
+          delay: 0.6,
+          ease: "power3.out",
+          onUpdate: () => (el.textContent = fmt(n.v)),
+          scrollTrigger: { trigger: el, start: "top 95%" },
         });
-    if (prefersReducedMotion) setHeroIntroComplete(true);
-
-    let lastScrollY = window.scrollY;
-    let rotation = 0;
-    let frameId: number | null = null;
-
-    const updateScrollState = () => {
-      frameId = null;
-      const y = window.scrollY;
-      const delta = y - lastScrollY;
-      rotation += delta * 0.5;
-      if (!prefersReducedMotion) {
-        suns.forEach((s) => (s.style.transform = `rotate(${rotation}deg)`));
-      }
-      lastScrollY = y;
-
-      setScrolled((wasScrolled) => {
-        const isScrolled = y > 10;
-        return wasScrolled === isScrolled ? wasScrolled : isScrolled;
       });
 
-      const canvas = aboutWorkCanvasRef.current;
-      if (canvas) {
-        const { top } = canvas.getBoundingClientRect();
-        const progress = Math.min(
-          1,
-          Math.max(
-            0,
-            (window.innerHeight * 0.85 - top) / (window.innerHeight * 0.45),
-          ),
-        );
-        canvas.style.setProperty("--canvas-shade", progress.toFixed(3));
-      }
-    };
+      if (reduce) return;
 
-    const handleScroll = () => {
-      if (frameId === null)
-        frameId = window.requestAnimationFrame(updateScrollState);
-    };
+      // Hero: the name rises out of its line, then the rest settles in.
+      gsap
+        .timeline({ defaults: { ease: "expo.out" } })
+        .from(".hero-name .line-inner", { yPercent: 105, duration: 1.4 })
+        .from(".hero-shape", { scale: 0, opacity: 0, duration: 1.6, stagger: 0.1 }, "-=1.2")
+        .from(".hero [data-intro]", { y: 24, opacity: 0, duration: 1, stagger: 0.08 }, "-=1.3");
 
-    const now = new Date();
-    const yearStart = new Date(now.getFullYear(), 0, 1);
-    const elapsedDays = Math.floor(
-      (now.getTime() - yearStart.getTime()) / 86_400_000,
-    );
-    const months = [
-      "jan",
-      "feb",
-      "mar",
-      "apr",
-      "may",
-      "jun",
-      "jul",
-      "aug",
-      "sep",
-      "oct",
-      "nov",
-      "dec",
-    ];
-    let dateFrameId: number | null = null;
-    if (prefersReducedMotion || elapsedDays === 0) {
-      setToday({
-        day: String(now.getDate()).padStart(2, "0"),
-        month: months[now.getMonth()],
+      // The name drifts apart slightly as you leave the hero.
+      gsap.to(".hero-name .line-inner", {
+        yPercent: -18,
+        letterSpacing: "0.02em",
+        ease: "none",
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true },
       });
-    } else {
-      let startTime: number | null = null;
-      const animateDate = (timestamp: number) => {
-        if (startTime === null) startTime = timestamp;
-        const progress = Math.min(1, (timestamp - startTime) / 1200);
-        const easedProgress = 1 - (1 - progress) ** 3;
-        const visibleDate = new Date(
-          yearStart.getTime() +
-            Math.floor(elapsedDays * easedProgress) * 86_400_000,
-        );
-        setToday({
-          day: String(visibleDate.getDate()).padStart(2, "0"),
-          month: months[visibleDate.getMonth()],
+
+      // Generic reveal for anything marked data-reveal.
+      gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
+        gsap.from(el, {
+          y: 40,
+          opacity: 0,
+          duration: 1.1,
+          ease: "expo.out",
+          clearProps: "transform,opacity",
+          scrollTrigger: { trigger: el, start: "top 88%" },
         });
-        if (progress < 1)
-          dateFrameId = window.requestAnimationFrame(animateDate);
-      };
-      dateFrameId = window.requestAnimationFrame(animateDate);
-    }
+      });
 
-    const awardsBadge = document.querySelector<HTMLElement>(".awards-badge");
-    const experienceCounter = { value: 0 };
-    let experienceTween: gsap.core.Tween | null = null;
-    const experienceTrigger =
-      awardsBadge && !prefersReducedMotion
-        ? ScrollTrigger.create({
-            trigger: awardsBadge,
-            start: "top 85%",
-            once: true,
-            onEnter: () => {
-              experienceTween = gsap.to(experienceCounter, {
-                value: 2,
-                duration: 1.1,
-                ease: "power2.out",
-                onUpdate: () =>
-                  setExperienceYears(Math.floor(experienceCounter.value)),
-                onComplete: () => setExperienceYears(2),
-              });
-            },
-          })
-        : null;
-    if (prefersReducedMotion) setExperienceYears(2);
+      // Section titles: letters slide up one by one.
+      gsap.utils.toArray<HTMLElement>(".section-head h2, .contact h2").forEach((h) => {
+        const split = SplitText.create(h, { type: "chars", aria: "auto" });
+        gsap.from(split.chars, {
+          yPercent: 60,
+          opacity: 0,
+          rotateX: -70,
+          transformOrigin: "50% 100%",
+          duration: 1.1,
+          ease: "expo.out",
+          stagger: 0.025,
+          clearProps: "transform,opacity",
+          scrollTrigger: { trigger: h, start: "top 88%" },
+        });
+      });
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll);
-    updateScrollState();
+      // Project images drift slightly against the scroll.
+      gsap.utils.toArray<HTMLElement>(".project-media img").forEach((img) => {
+        gsap.fromTo(
+          img,
+          { yPercent: -4 },
+          {
+            yPercent: 4,
+            ease: "none",
+            scrollTrigger: { trigger: img, start: "top bottom", end: "bottom top", scrub: true },
+          },
+        );
+      });
+
+      // Bio lights up word by word as it scrolls past.
+      if (bioRef.current) {
+        const split = SplitText.create(bioRef.current, { type: "words", aria: "auto" });
+        gsap.fromTo(
+          split.words,
+          { opacity: 0.18 },
+          {
+            opacity: 1,
+            stagger: 0.04,
+            ease: "none",
+            scrollTrigger: { trigger: bioRef.current, start: "top 80%", end: "bottom 55%", scrub: true },
+          },
+        );
+      }
+    }, rootRef);
+
+    // Header state + the ✺ marks turning with the scroll.
+    const suns = document.querySelectorAll<HTMLElement>(".sun");
+    let frame: number | null = null;
+    const onScroll = () => {
+      if (frame !== null) return;
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        const y = window.scrollY;
+        setScrolled(y > 24);
+        if (!reduce) suns.forEach((s) => (s.style.rotate = `${y * 0.25}deg`));
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-      if (frameId !== null) window.cancelAnimationFrame(frameId);
-      if (dateFrameId !== null) window.cancelAnimationFrame(dateFrameId);
-      experienceTrigger?.kill();
-      experienceTween?.kill();
-      textReveals.forEach(({ split, tween }) => {
-        tween.scrollTrigger?.kill();
-        tween.kill();
-        split.revert();
-      });
+      window.removeEventListener("scroll", onScroll);
+      if (frame !== null) cancelAnimationFrame(frame);
+      ctx.revert();
     };
   }, []);
 
-  const handlePortraitPointerDown = (
-    event: ReactPointerEvent<HTMLDivElement>,
-  ) => {
-    if (!event.isPrimary || event.button !== 0) return;
-
-    portraitDragRef.current = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-    };
-    event.currentTarget.classList.add("is-dragging");
-    event.currentTarget.setPointerCapture(event.pointerId);
+  // The portrait can be picked up and dropped; it springs back on release.
+  const onPortraitDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!e.isPrimary || e.button !== 0) return;
+    portraitDragRef.current = { pointerId: e.pointerId, startX: e.clientX, startY: e.clientY };
+    e.currentTarget.classList.add("is-dragging");
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
-
-  const handlePortraitPointerMove = (
-    event: ReactPointerEvent<HTMLDivElement>,
-  ) => {
+  const onPortraitMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     const drag = portraitDragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-
-    const x = event.clientX - drag.startX;
-    const y = event.clientY - drag.startY;
-    const rotation = Math.max(-7, Math.min(7, x * 0.025));
-    event.currentTarget.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    const x = e.clientX - drag.startX;
+    const y = e.clientY - drag.startY;
+    e.currentTarget.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${Math.max(-7, Math.min(7, x * 0.025))}deg)`;
   };
-
-  const handlePortraitPointerEnd = (
-    event: ReactPointerEvent<HTMLDivElement>,
-  ) => {
+  const onPortraitEnd = (e: ReactPointerEvent<HTMLDivElement>) => {
     const drag = portraitDragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-
+    if (!drag || drag.pointerId !== e.pointerId) return;
     portraitDragRef.current = null;
-    event.currentTarget.classList.remove("is-dragging");
-    event.currentTarget.style.transform = "";
-    if (event.currentTarget.hasPointerCapture(event.pointerId))
-      event.currentTarget.releasePointerCapture(event.pointerId);
+    e.currentTarget.classList.remove("is-dragging");
+    e.currentTarget.style.transform = "";
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
-  const positionExperiencePreview = (
-    event: ReactPointerEvent<HTMLDivElement>,
-  ) => {
-    const preview = experiencePreviewRef.current;
-    if (!preview) return;
-
-    const margin = 20;
-    const gap = 24;
-    const width = preview.offsetWidth || 280;
-    const height = preview.offsetHeight || 350;
-    let x = event.clientX + gap;
-    let y = event.clientY + gap;
-
-    if (x + width > window.innerWidth - margin)
-      x = event.clientX - width - gap;
-    if (y + height > window.innerHeight - margin)
-      y = event.clientY - height - gap;
-
-    x = Math.max(margin, Math.min(x, window.innerWidth - width - margin));
-    y = Math.max(margin, Math.min(y, window.innerHeight - height - margin));
-    preview.style.setProperty("--preview-x", `${x}px`);
-    preview.style.setProperty("--preview-y", `${y}px`);
+  // A floating logo follows the pointer over the experience list.
+  const movePreview = (e: ReactPointerEvent<HTMLElement>) => {
+    const el = previewRef.current;
+    if (!el) return;
+    el.style.setProperty("--px", `${e.clientX}px`);
+    el.style.setProperty("--py", `${e.clientY}px`);
   };
 
   return (
-    <main>
-      <PortfolioPreloader />
-      <div className="page-bg" aria-hidden="true" />
-      <header
-        className={`site-header${scrolled ? " scrolled" : ""}${heroHolding ? " hero-holding" : ""}`}
-      >
-        <a className="wordmark" href="#top" aria-label="Home">
-          Ranjula.
+    <main ref={rootRef}>
+      <Atmosphere />
+      <Constellation />
+      <Interactions />
+
+      {/* ═══ HEADER ═══ */}
+      <header className={`site-header${scrolled ? " is-scrolled" : ""}`}>
+        <a className="wordmark" href="#top" aria-label="Ranjula Ilukpitiya, back to top" data-magnetic>
+          Ranjula<span>.</span>
         </a>
-        <p className="header-title">UX/UI DESIGNER, DEVELOPER</p>
-        <nav className="header-nav">
-          <a href="#cases">works,</a>
-          <a href="#about">about,</a>
-          <a href="#contact">contact</a>
+        <nav className="nav" aria-label="Main">
+          {["Work", "About", "Experience", "Contact"].map((label, i) => (
+            <a key={label} href={`#${label.toLowerCase()}`} data-magnetic>
+              <i>0{i + 1}</i>
+              <span className="roll" data-text={label}>
+                <span>{label}</span>
+              </span>
+            </a>
+          ))}
         </nav>
+        <a className="pill pill-solid header-cv" href={CV_URL} target="_blank" rel="noopener noreferrer" data-magnetic>
+          CV <span aria-hidden="true">↗</span>
+        </a>
       </header>
 
-      {/* ═══════════ HERO ═══════════ */}
-      <section className="hero" ref={heroRef} aria-labelledby="hero-title">
-        <div className="noise" aria-hidden="true" />
+      {/* ═══ HERO ═══ */}
+      <section className="hero" id="top" aria-labelledby="hero-name">
+        {/* depth layers: drift against the pointer at different speeds */}
+        <div className="hero-shapes" aria-hidden="true">
+          <span className="hero-shape shape-sun" data-depth="0.9">✺</span>
+          <span className="hero-shape shape-ring" data-depth="0.5" />
+          <span className="hero-shape shape-ring shape-ring-sm" data-depth="1.3" />
+          <span className="hero-shape shape-cross" data-depth="0.7">+</span>
+          <span className="hero-shape shape-code" data-depth="0.35">{"</>"}</span>
+          <span className="hero-shape shape-dot" data-depth="1.6" />
+        </div>
 
-        <div className="hero-layout" id="top">
-          <div className="hero-copy">
-            <p className="creative">creative</p>
-            <div className="display-title-container">
-              <div className="designer-line">
-                <span className="cut-text">DESIGNER</span> <b>&amp;</b>
-              </div>
-              <div className="developer-line">
-                <span className="cut-text">DEVELOPER</span>
-              </div>
+        <div className="hero-top" data-intro>
+          <p className="status">
+            <span className="status-dot" aria-hidden="true" />
+            Open to full-time roles &amp; freelance projects
+          </p>
+          <p className="hero-place">Colombo, Sri Lanka</p>
+        </div>
+
+        <h1 className="hero-name" id="hero-name" aria-label="Ranjula Ilukpitiya">
+          <span className="line" aria-hidden="true">
+            <span className="line-inner" data-stretch>
+              <Chars text="Ranjula Ilukpitiya" />
+            </span>
+          </span>
+        </h1>
+
+        <div className="hero-grid">
+          <p className="hero-role" data-intro>
+            <span className="sun" aria-hidden="true">✺</span>
+            Full-stack <em>software engineer</em>
+          </p>
+          <div className="hero-intro" data-intro>
+            <p>
+              I design in Figma and ship in Next.js. Database, API and interface, I build the
+              whole product, and I care about how it feels in someone&apos;s hands.
+            </p>
+            <div className="hero-actions">
+              <a className="pill pill-solid" href="#work" data-magnetic>
+                See selected work <span aria-hidden="true">↓</span>
+              </a>
+              <a className="pill" href={CV_URL} target="_blank" rel="noopener noreferrer" data-magnetic>
+                Download CV <span aria-hidden="true">↗</span>
+              </a>
             </div>
           </div>
-
-          <div className="availability" aria-label="Available for work">
-            <span className="mini-sun absolute -top-2 -left-12">✺</span>
-            <strong>{today.day}</strong>
-            <span>
-              <b>{today.month}</b>
-              <br />
-              <span className="availability-text">available</span>
-              <br />
-              <span className="availability-text">for work</span>
-            </span>
-          </div>
-
-          <div
-            className={`hero-tagline${heroIntroComplete ? " is-intro-complete" : ""}`}
-          >
-            <h2 id="hero-title" className="reveal-text" ref={heroTextRef}>
-              I AM A DEVELOPER AND UI/UX DESIGNER BASED IN SRI LANKA. I BLEND
-              CODE, DESIGN, AND CREATIVE THINKING TO BUILD DIGITAL EXPERIENCES.
-              DRAWN TO MINIMALISM, BRUTALISM, AND THE ART OF SIMPLICITY.
-            </h2>
-            <button
-              className="outline-button"
-              onClick={() => scrollTo("#contact")}
-              disabled={!heroIntroComplete}
-              aria-label="Contact me"
-            >
-              <span
-                className="btn-text"
-                data-text="CONTACT ME"
-                aria-hidden="true"
-              >
-                CONTACT ME
-              </span>
-            </button>
-          </div>
+          <dl className="facts" data-intro>
+            {facts.map((f) => (
+              <div key={f.label}>
+                <dt data-count={f.value} data-decimals={f.decimals}>
+                  {f.decimals ? f.value.toFixed(f.decimals) : String(f.value).padStart(2, "0")}
+                </dt>
+                <dd>{f.label}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
+
+        <a className="scroll-cue" href="#work" aria-label="Scroll to work" data-magnetic>
+          <span>Scroll</span>
+          <i aria-hidden="true" />
+        </a>
       </section>
 
-      <div className="about-work-canvas" ref={aboutWorkCanvasRef}>
-        {/* ═══════════ ABOUT ═══════════ */}
-        <section
-          className="about"
-          id="about"
-          ref={aboutRef}
-          aria-labelledby="about-title"
-        >
-          <div className="about-heading">
-            <h2
-              className="cut-text"
-              id="about-title"
-              aria-label="Hello, I am Ranjula"
-            >
-              {"HELLO I AM RANJULA".split(" ").map((word) => (
-                <span className="about-word" key={word} aria-hidden="true">
-                  {word.split("").map((ch, i) => (
-                    <span key={`${word}-${i}`}>{ch}</span>
-                  ))}
-                </span>
-              ))}
-            </h2>
-            <span className="about-name">Ranjula Ilukpitiya</span>
-          </div>
+      {/* ═══ MARQUEE ═══ */}
+      <div className="marquee-band">
+        <Marquee items={stackMarquee} speed={36} />
+        <Marquee items={roleMarquee} reverse variant="outline" speed={44} />
+      </div>
 
-          <p className="about-bio reveal-text uppercase" ref={aboutTextRef}>
-            I use my passion and skills to design and build meaningful digital
-            experiences. I combine creative UI/UX design with modern frontend
-            development to transform ideas into intuitive, visually compelling,
-            and high-performing digital products. I collaborate with startups,
-            businesses, creative agencies, and individuals to bring ambitious
-            ideas to life through design and technology.
+      {/* ═══ WORK ═══ */}
+      <section className="section work" id="work" aria-labelledby="work-title">
+        <div className="section-head">
+          <p className="section-index">01</p>
+          <h2 id="work-title">Selected work</h2>
+          <p className="section-note" data-reveal>
+            Live products for real businesses, from a family holiday home to an insurance brokerage
+            in California.
           </p>
+        </div>
 
-          <div className="about-media">
+        <ol className="projects">
+          {projects.map((p, i) => (
+            <li className="project" key={p.name}>
+              <div className="project-media-wrap" data-reveal>
+                <a
+                  className="project-media"
+                  href={p.live ?? "#work"}
+                  target={p.live ? "_blank" : undefined}
+                  rel={p.live ? "noopener noreferrer" : undefined}
+                  aria-label={p.live ? `Open ${p.name} in a new tab` : p.name}
+                  data-fit={p.fit ?? "cover"}
+                  data-tilt
+                  data-cursor={p.live ? "Visit ↗" : "Design"}
+                >
+                  <Image
+                    src={p.image}
+                    alt={`${p.name} screenshot`}
+                    fill
+                    sizes="(max-width: 900px) 92vw, 58vw"
+                    style={{ objectFit: p.fit ?? "cover", objectPosition: "top center" }}
+                  />
+                  <span className="glare" aria-hidden="true" />
+                  <span className="project-badge" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
+                  </span>
+                </a>
+              </div>
+              <div className="project-body" data-reveal>
+                <p className="project-num">{String(i + 1).padStart(2, "0")}</p>
+                <h3>{p.name}</h3>
+                <p className="project-kind">{p.kind}</p>
+                <p className="project-summary">{p.summary}</p>
+                <ul className="chips" aria-label="Built with">
+                  {p.stack.map((s) => (
+                    <li key={s}>{s}</li>
+                  ))}
+                </ul>
+                {(p.live || p.code) && (
+                  <p className="project-links">
+                    {p.live && (
+                      <a href={p.live} target="_blank" rel="noopener noreferrer" data-magnetic>
+                        <span className="roll" data-text="Live site ↗">
+                          <span>Live site ↗</span>
+                        </span>
+                      </a>
+                    )}
+                    {p.code && (
+                      <a href={p.code} target="_blank" rel="noopener noreferrer" data-magnetic>
+                        <span className="roll" data-text="Source ↗">
+                          <span>Source ↗</span>
+                        </span>
+                      </a>
+                    )}
+                  </p>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* ═══ ABOUT ═══ */}
+      <section className="section about" id="about" aria-labelledby="about-title">
+        <div className="section-head">
+          <p className="section-index">02</p>
+          <h2 id="about-title">About</h2>
+        </div>
+
+        <div className="about-grid">
+          <figure className="about-media" data-reveal>
             <div
-              className="about-portrait"
-              role="img"
-              aria-label="Ranjula with a Game Face ON collage"
-              onPointerDown={handlePortraitPointerDown}
-              onPointerMove={handlePortraitPointerMove}
-              onPointerUp={handlePortraitPointerEnd}
-              onPointerCancel={handlePortraitPointerEnd}
+              className="portrait"
+              onPointerDown={onPortraitDown}
+              onPointerMove={onPortraitMove}
+              onPointerUp={onPortraitEnd}
+              onPointerCancel={onPortraitEnd}
+              data-cursor="Drag"
             >
               <Image
                 src="/gameOn.png"
-                alt=""
+                alt="Ranjula with a Game Face ON collage"
                 fill
-                sizes="(max-width: 760px) 90vw, (max-width: 1024px) 55vw, 32vw"
+                sizes="(max-width: 900px) 80vw, 34vw"
                 draggable={false}
                 style={{ objectFit: "contain" }}
               />
             </div>
-            <div className="about-note">
-              <p>THIS IS ME,</p>
-              <small>Game Face ON !</small>
-              <span className="about-arrow" aria-hidden="true">
-                ↗
-              </span>
-            </div>
-          </div>
-        </section>
+            <figcaption>
+              This is me, <em>game face on.</em> <span>(drag me)</span>
+            </figcaption>
+          </figure>
 
-        {/* ═══════════ SELECTED CASES ═══════════ */}
-        <section className="cases" id="cases" aria-labelledby="cases-title">
-          <h2 id="cases-title" className="cases-header">
-            <span className="mini-sun cases-sun">✺</span> SELECTED CASES
-          </h2>
+          <div className="about-copy">
+            <p className="bio" ref={bioRef}>
+              I&apos;m Ranjula, a software engineer from Sri Lanka with an IT degree from SLIIT. I
+              started on the front end, moved into full-stack work on a SaaS product, and now build
+              client websites with M99 Labs, the studio I co-founded with two friends. By day I
+              look after enterprise SAP HANA databases at HCLTech, which taught me what production
+              really means.
+            </p>
 
-          {cases.map((c, i) => (
-            <article
-              key={c.name}
-              className={`case-item ${i === 1 ? "img-left" : "img-right"}${i === 2 ? " case-item-gawanna" : ""}`}
-            >
-              <div className="case-text">
-                <h3>{c.name}</h3>
-                <p>{c.subtitle}</p>
-              </div>
-              <div className="case-image">
-                <Image
-                  src={c.image}
-                  alt={c.name}
-                  fill
-                  sizes="(max-width: 760px) 90vw, 50vw"
-                  style={{ objectFit: c.fit }}
-                />
-              </div>
-              {c.href && (
-                <a
-                  className="case-open"
-                  href={c.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Open ${c.name} website in a new tab`}
-                >
-                  <span aria-hidden="true">↗</span>
-                </a>
-              )}
-            </article>
-          ))}
-
-          <div className="cases-cta">
-            <span className="cta-label">Have a project in mind?</span>
-            <button
-              className="outline-button"
-              onClick={() => scrollTo("#contact")}
-              aria-label="Contact me"
-            >
-              <span
-                className="btn-text"
-                data-text="CONTACT ME"
-                aria-hidden="true"
-              >
-                CONTACT ME
-              </span>
-            </button>
-          </div>
-        </section>
-      </div>
-
-      {/* ═══════════ EXPERIENCE ═══════════ */}
-      <section className="awards" aria-labelledby="awards-title">
-        <div className="noise" aria-hidden="true" />
-
-        <div className="awards-left">
-          <h2 id="awards-title" className="awards-heading">
-            FORTUNATE TO WORK WITH GREAT PEOPLE.
-          </h2>
-          <p className="awards-sub">&amp; GRATEFUL TO HAVE THE WORK RECOGNIZED..</p>
-          <div className="awards-badge">
-            <span className="mini-sun">✺</span>
-            <span className="badge-eyes">+{experienceYears}</span>
-            <span className="badge-label">
-              <b>Yrs</b>
-              <br />
-              Experience
-            </span>
-          </div>
-        </div>
-
-        <div className="awards-right">
-          <div className="awards-table-head">
-            <span>ROLE</span>
-            <span>COMPANY</span>
-            <span>DURATION</span>
-          </div>
-          {experiences.map((e, i) => (
-            <div
-              key={i}
-              className={`awards-row${hoveredExp === i ? " is-hovered" : ""}`}
-              onPointerEnter={(event) => {
-                if (event.pointerType === "touch") return;
-                setHoveredExp(i);
-                setPreviewExp(i);
-                positionExperiencePreview(event);
-              }}
-              onPointerMove={(event) => {
-                if (
-                  event.pointerType !== "touch" ||
-                  experiencePressRef.current?.pointerId === event.pointerId
-                )
-                  positionExperiencePreview(event);
-              }}
-              onPointerDown={(event) => {
-                if (event.pointerType !== "touch" || !event.isPrimary) return;
-                experiencePressRef.current = { pointerId: event.pointerId };
-                setHoveredExp(i);
-                setPreviewExp(i);
-                positionExperiencePreview(event);
-                event.currentTarget.setPointerCapture(event.pointerId);
-              }}
-              onPointerUp={(event) => {
-                if (experiencePressRef.current?.pointerId !== event.pointerId)
-                  return;
-                experiencePressRef.current = null;
-                setHoveredExp(null);
-                if (event.currentTarget.hasPointerCapture(event.pointerId))
-                  event.currentTarget.releasePointerCapture(event.pointerId);
-              }}
-              onPointerCancel={(event) => {
-                if (experiencePressRef.current?.pointerId !== event.pointerId)
-                  return;
-                experiencePressRef.current = null;
-                setHoveredExp(null);
-              }}
-              onPointerLeave={(event) => {
-                if (event.pointerType !== "touch") setHoveredExp(null);
-              }}
-            >
-              {hoveredExp === i ? (
-                <div className="awards-marquee">
-                  <span>{Array(20).fill(e.role).join("   ")}</span>
+            <div className="skills">
+              {skills.map((s, i) => (
+                <div className="skill-card" key={s.group} data-glow data-reveal>
+                  <p className="skill-index">0{i + 1}</p>
+                  <h3>{s.group}</h3>
+                  <ul>
+                    {s.items.map((it) => (
+                      <li key={it}>{it}</li>
+                    ))}
+                  </ul>
                 </div>
-              ) : (
-                <>
-                  <span>{e.role}</span>
-                  <span>{e.company}</span>
-                  <span className="award-project">{e.duration}</span>
-                </>
-              )}
+              ))}
             </div>
-          ))}
+          </div>
         </div>
+      </section>
+
+      {/* ═══ EXPERIENCE ═══ */}
+      <section className="section experience" id="experience" aria-labelledby="exp-title">
+        <div className="section-head">
+          <p className="section-index">03</p>
+          <h2 id="exp-title">Experience</h2>
+        </div>
+
+        <ol className="timeline" onPointerLeave={() => setPreview(null)}>
+          {experience.map((e, i) => (
+            <li
+              key={e.role}
+              data-reveal
+              className={preview === i ? "is-active" : undefined}
+              onPointerEnter={(ev) => {
+                if (ev.pointerType === "touch") return;
+                setPreview(i);
+                movePreview(ev);
+              }}
+              onPointerMove={movePreview}
+            >
+              <p className="tl-period">{e.period}</p>
+              <div className="tl-main">
+                <h3>{e.role}</h3>
+                <p className="tl-org">{e.org}</p>
+              </div>
+              <p className="tl-note">{e.note}</p>
+              <span className="tl-arrow" aria-hidden="true">→</span>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <div
-        ref={experiencePreviewRef}
-        className={`experience-preview${hoveredExp !== null ? " is-visible" : ""}`}
-        data-experience={previewExp ?? undefined}
-        onTransitionEnd={(event) => {
-          if (
-            event.target === event.currentTarget &&
-            event.propertyName === "opacity" &&
-            hoveredExp === null
-          )
-            setPreviewExp(null);
-        }}
+        ref={previewRef}
+        className={`exp-preview${preview !== null && experience[preview].image ? " is-visible" : ""}`}
         aria-hidden="true"
       >
-        {previewExp !== null && (
-          <div key={previewExp} className="experience-preview-image">
-            <Image
-              src={experiences[previewExp].previewImage}
-              alt=""
-              fill
-              sizes="(max-width: 1024px) 220px, 320px"
-              style={{ objectFit: "contain" }}
-            />
-          </div>
+        {experience.map((e, i) =>
+          e.image ? (
+            <div key={e.org} className={`exp-preview-img${preview === i ? " is-current" : ""}`}>
+              <Image src={e.image} alt="" fill sizes="260px" style={{ objectFit: "contain" }} />
+            </div>
+          ) : null,
         )}
       </div>
 
-      {/* ═══════════ FEATURED IN ═══════════ */}
-      <section className="featured-in" aria-label="Featured in publications">
-        <div className="noise" aria-hidden="true" />
-        <p className="featured-label">Also featured in</p>
-        <div className="featured-marquee" aria-hidden="true">
-          <span>{[...featuredSites, ...featuredSites].join(".  ")}.</span>
-          <span>{[...featuredSites, ...featuredSites].join(".  ")}.</span>
+      {/* ═══ M99 LABS ═══ */}
+      <section className="lab" aria-labelledby="lab-title">
+        <div className="lab-inner" data-reveal data-glow>
+          <div className="lab-orbit" aria-hidden="true">
+            <svg className="lab-ring" viewBox="0 0 400 400">
+              <defs>
+                <path id="lab-ring-path" d="M200,200 m-170,0 a170,170 0 1,1 340,0 a170,170 0 1,1 -340,0" />
+              </defs>
+              <text>
+                <textPath href="#lab-ring-path" textLength="1060">
+                  DESIGN ✺ BUILD ✺ SHIP ✺ DESIGN ✺ BUILD ✺ SHIP ✺
+                </textPath>
+              </text>
+            </svg>
+            <div className="lab-logo">
+              <Image src="/assets/M99Labs_Logo.png" alt="M99 Labs logo" fill sizes="(max-width: 900px) 60vw, 22vw" />
+            </div>
+          </div>
+          <div className="lab-copy">
+            <p className="kicker">Co-founder of</p>
+            <h2 id="lab-title">M99 Labs</h2>
+            <p>
+              A small software studio in Sri Lanka. We design and build websites and web products
+              for local and international clients, including Aba Ceylon Tours.
+            </p>
+            <a className="pill" href={links.m99} target="_blank" rel="noopener noreferrer" data-magnetic>
+              Visit m99labs.com <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* ═══════════ CONTACT ═══════════ */}
+      {/* ═══ CONTACT ═══ */}
+      <div className="marquee-band marquee-band-contact">
+        <Marquee items={contactMarquee} variant="outline" speed={30} />
+      </div>
+
       <section className="contact" id="contact" aria-labelledby="contact-title">
-        <div className="noise" aria-hidden="true" />
-
-        <div className="contact-big-text" aria-hidden="true">
-          <span className="cut-text">LET&apos;S</span>
-          <strong className="cut-text">CONNECT</strong>
-        </div>
-
-        <div className="contact-center">
-          <p className="interested-label">I&apos;M ALWAYS INTERESTED ABOUT</p>
-          <div className="pills-grid">
-            {skillPills.map((s) => (
-              <span className="skill-pill" key={s}>
-                {s}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="contact-bottom">
-          <div className="contact-cta">
-            <h2 id="contact-title">ARE YOU THINKING ABOUT A PROJECT?</h2>
-            <a
-              className="outline-button2 cta-btn"
-              href="mailto:ninetailscode@gmail.com"
-              aria-label="Email Ranjula"
-            >
-              <span
-                className="btn-text"
-                data-text="CONTACT ME"
-                aria-hidden="true"
-              >
-                CONTACT ME
-              </span>
-            </a>
-          </div>
-          <div className="contact-note">
-            <p>Available for independent and collaborative work worldwide.</p>
-            <div className="social-links">
-              <a
-                href="https://www.linkedin.com/in/ranjula-illukpitiya-95b407226"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-              >
-                LinkedIn
+        <p className="section-index">04</p>
+        <h2 id="contact-title">
+          Got a role
+          <br />
+          or a project<span className="sun" aria-hidden="true">✺</span>
+        </h2>
+        <a className="contact-email" href={`mailto:${EMAIL}`} data-reveal data-cursor="Say hi">
+          {EMAIL}
+        </a>
+        <ul className="contact-links" data-reveal>
+          {[
+            { label: "LinkedIn", href: links.linkedin },
+            { label: "GitHub", href: links.github },
+            { label: "Instagram", href: links.instagram },
+            { label: "CV (PDF)", href: CV_URL },
+          ].map((l) => (
+            <li key={l.label}>
+              <a href={l.href} target="_blank" rel="noopener noreferrer" data-magnetic>
+                <span className="roll" data-text={`${l.label} ↗`}>
+                  <span>{l.label} ↗</span>
+                </span>
               </a>
-              <a
-                href="https://instagram.com/ranjula_ilukpitiya"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-              >
-                Instagram
-              </a>
-              <a
-                href="https://github.com/Ranjula001"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-              >
-                GitHub
-              </a>
-            </div>
-          </div>
-        </div>
+            </li>
+          ))}
+        </ul>
+
+        <footer className="footer">
+          <p>© {new Date().getFullYear()} Ranjula Ilukpitiya</p>
+          <p>Designed &amp; built with Next.js and GSAP</p>
+          <a href="#top" data-magnetic>
+            Back to top ↑
+          </a>
+        </footer>
       </section>
     </main>
   );
